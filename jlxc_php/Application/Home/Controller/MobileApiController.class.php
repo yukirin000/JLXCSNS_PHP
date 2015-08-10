@@ -22,7 +22,7 @@ class MobileApiController extends Controller {
     private $attachmentUrl = 'http://192.168.1.101/jlxc_php/Uploads/';
 
     public function index(){
-		echo JLXC."haha\n";
+		echo JLXC."haha\n";   
 
 
         //http://rest.yunba.io:8080?method=publish&appkey=555de1ac27302bb31589369c&seckey=sec-pWEmt2isYrelVhjaRvbPUcM8dRokodtpmi0Kj0Q3xQyqR76R&topic=jlxc19&msg="Thistest"
