@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4a6e87a2-dab6-47e2-9416-f8ff5e0e240d" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jlxc_php/Application/Home/Controller/MobileApiController.class.php" afterPath="$PROJECT_DIR$/jlxc_php/Application/Home/Controller/MobileApiController.class.php" />
+    </list>
+    <ignored path="JLXCSNS_PHP.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="JLXCSNS_PHP" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="MobileApiController.class.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/jlxc_php/Application/Home/Controller/MobileApiController.class.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.36585367" vertical-offset="0" max-vertical-offset="68265">
+              <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+              <folding>
+                <marker date="1439209165000" expanded="true" signature="13085:13223" placeholder="SELECT code,..jlxc_school..." />
+                <marker date="1439209165000" expanded="true" signature="13316:13438" placeholder="SELECT code,..jlxc_school..." />
+                <marker date="1439209165000" expanded="true" signature="21865:22040" placeholder="SELECT u.hea..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="23204:23413" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="24854:25079" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="27463:27678" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="28561:28900" placeholder="SELECT r1.fr..*..." />
+                <marker date="1439209165000" expanded="true" signature="28605:28677" placeholder="SELECT * FRO..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="28704:28783" placeholder="SELECT * FRO..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="32314:32518" placeholder="SELECT r.fri..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="33497:33794" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="35142:35585" placeholder="SELECT user...jlxc_news_content..." />
+                <marker date="1439209165000" expanded="true" signature="36092:36260" placeholder="SELECT id,ty..." />
+                <marker date="1439209165000" expanded="true" signature="53178:53335" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="53474:53640" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="55614:55890" placeholder="SELECT u.id,..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="56034:56310" placeholder="SELECT u.id,..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="56986:57223" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="57357:57590" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="58111:58340" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="58470:58695" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="61385:61492" placeholder="SELECT * FRO..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="61989:62474" placeholder="SELECT user...jlxc_news_content..." />
+                <marker date="1439209165000" expanded="true" signature="62982:63150" placeholder="SELECT id,ty..." />
+                <marker date="1439209165000" expanded="true" signature="63726:64080" placeholder="SELECT c.id,..jlxc_news_comment..." />
+                <marker date="1439209165000" expanded="true" signature="64389:64615" placeholder="SELECT l.use..jlxc_news_like..." />
+                <marker date="1439209165000" expanded="true" signature="68429:68924" placeholder="SELECT user...jlxc_news_content..." />
+                <marker date="1439209165000" expanded="true" signature="69433:69601" placeholder="SELECT id,ty..." />
+                <marker date="1439209165000" expanded="true" signature="70178:70532" placeholder="SELECT c.id,..jlxc_news_comment..." />
+                <marker date="1439209165000" expanded="true" signature="70841:71067" placeholder="SELECT l.use..jlxc_news_like..." />
+                <marker date="1439209165000" expanded="true" signature="72394:72606" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="73467:73699" placeholder="SELECT u.id ..." />
+                <marker date="1439209165000" expanded="true" signature="74562:74791" placeholder="SELECT l.use..jlxc_news_like..." />
+                <marker date="1439209165000" expanded="true" signature="77495:77876" placeholder="SELECT user...jlxc_news_content..." />
+                <marker date="1439209165000" expanded="true" signature="78007:78302" placeholder="SELECT c.id,..jlxc_news_comment..." />
+                <marker date="1439209165000" expanded="true" signature="78565:79104" placeholder="SELECT s.id,..id..." />
+                <marker date="1439209165000" expanded="true" signature="78734:79038" placeholder="SELECT c.id,..jlxc_news_second_comment..." />
+                <marker date="1439209165000" expanded="true" signature="79309:79477" placeholder="SELECT id,ty..." />
+                <marker date="1439209165000" expanded="true" signature="80006:80220" placeholder="SELECT l.use..jlxc_news_like..." />
+                <marker date="1439209165000" expanded="true" signature="82650:82792" placeholder="SELECT sub_u..jlxc_attachment..." />
+                <marker date="1439209165000" expanded="true" signature="86741:86883" placeholder="SELECT sub_u..jlxc_attachment..." />
+                <marker date="1439209165000" expanded="true" signature="95044:95186" placeholder="SELECT sub_u..jlxc_attachment..." />
+                <marker date="1439209165000" expanded="true" signature="98011:98245" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="105455:105704" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="106635:106814" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="114958:115079" placeholder="SELECT * fro..jlxc_chatroom..." />
+                <marker date="1439209165000" expanded="true" signature="115546:115695" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+                <marker date="1439209165000" expanded="true" signature="123561:123710" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+                <marker date="1439209165000" expanded="true" signature="123892:124085" placeholder="SELECT u.id ..jlxc_chatroom_member..." />
+                <marker date="1439209165000" expanded="true" signature="124851:125216" placeholder="SELECT c.cha..jlxc_chatroom..." />
+                <marker date="1439209165000" expanded="true" signature="125687:125836" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+                <marker date="1439209165000" expanded="true" signature="128675:128997" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="130162:130522" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="131887:132230" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="135489:135646" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="135785:135951" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="137925:138201" placeholder="SELECT u.id,..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="138345:138621" placeholder="SELECT u.id,..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="139297:139534" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="139668:139901" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="140422:140651" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="140781:141006" placeholder="SELECT u.id,..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="143152:143259" placeholder="SELECT * FRO..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="144517:144660" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="148421:148578" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="148705:148871" placeholder="SELECT count..." />
+                <marker date="1439209165000" expanded="true" signature="150825:151087" placeholder="SELECT u.id ..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="151283:151545" placeholder="SELECT u.id ..jlxc_relationship..." />
+                <marker date="1439209165000" expanded="true" signature="152364:152587" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="152769:152988" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="153517:153732" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="153903:154114" placeholder="SELECT u.id ..jlxc_user..." />
+                <marker date="1439209165000" expanded="true" signature="157830:157937" placeholder="SELECT * FRO..jlxc_user..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/jlxc_php/Application/Home/Controller/MobileApiController.class.php" />
+      </list>
+    </option>
+  </component>
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="6" />
+    <option name="y" value="23" />
+    <option name="width" value="1338" />
+    <option name="height" value="667" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jlxc_php" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jlxc_php" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Application" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jlxc_php" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Application" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Home" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jlxc_php" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Application" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Home" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Controller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="JLXCSNS_PHP" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jlxc_php" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Application" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Home" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Conf" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="RunManager">
+    <list size="0" />
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4a6e87a2-dab6-47e2-9416-f8ff5e0e240d" name="Default" comment="" />
+      <created>1439209091095</created>
+      <option name="number" value="Default" />
+      <updated>1439209091095</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="6" y="23" width="1338" height="667" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24962631" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings />
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/jlxc_php/Application/Home/Controller/MobileApiController.class.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.36585367" vertical-offset="0" max-vertical-offset="68265">
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding>
+            <marker date="1439209165000" expanded="true" signature="13085:13223" placeholder="SELECT code,..jlxc_school..." />
+            <marker date="1439209165000" expanded="true" signature="13316:13438" placeholder="SELECT code,..jlxc_school..." />
+            <marker date="1439209165000" expanded="true" signature="21865:22040" placeholder="SELECT u.hea..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="23204:23413" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="24854:25079" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="27463:27678" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="28561:28900" placeholder="SELECT r1.fr..*..." />
+            <marker date="1439209165000" expanded="true" signature="28605:28677" placeholder="SELECT * FRO..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="28704:28783" placeholder="SELECT * FRO..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="32314:32518" placeholder="SELECT r.fri..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="33497:33794" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="35142:35585" placeholder="SELECT user...jlxc_news_content..." />
+            <marker date="1439209165000" expanded="true" signature="36092:36260" placeholder="SELECT id,ty..." />
+            <marker date="1439209165000" expanded="true" signature="53178:53335" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="53474:53640" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="55614:55890" placeholder="SELECT u.id,..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="56034:56310" placeholder="SELECT u.id,..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="56986:57223" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="57357:57590" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="58111:58340" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="58470:58695" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="61385:61492" placeholder="SELECT * FRO..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="61989:62474" placeholder="SELECT user...jlxc_news_content..." />
+            <marker date="1439209165000" expanded="true" signature="62982:63150" placeholder="SELECT id,ty..." />
+            <marker date="1439209165000" expanded="true" signature="63726:64080" placeholder="SELECT c.id,..jlxc_news_comment..." />
+            <marker date="1439209165000" expanded="true" signature="64389:64615" placeholder="SELECT l.use..jlxc_news_like..." />
+            <marker date="1439209165000" expanded="true" signature="68429:68924" placeholder="SELECT user...jlxc_news_content..." />
+            <marker date="1439209165000" expanded="true" signature="69433:69601" placeholder="SELECT id,ty..." />
+            <marker date="1439209165000" expanded="true" signature="70178:70532" placeholder="SELECT c.id,..jlxc_news_comment..." />
+            <marker date="1439209165000" expanded="true" signature="70841:71067" placeholder="SELECT l.use..jlxc_news_like..." />
+            <marker date="1439209165000" expanded="true" signature="72394:72606" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="73467:73699" placeholder="SELECT u.id ..." />
+            <marker date="1439209165000" expanded="true" signature="74562:74791" placeholder="SELECT l.use..jlxc_news_like..." />
+            <marker date="1439209165000" expanded="true" signature="77495:77876" placeholder="SELECT user...jlxc_news_content..." />
+            <marker date="1439209165000" expanded="true" signature="78007:78302" placeholder="SELECT c.id,..jlxc_news_comment..." />
+            <marker date="1439209165000" expanded="true" signature="78565:79104" placeholder="SELECT s.id,..id..." />
+            <marker date="1439209165000" expanded="true" signature="78734:79038" placeholder="SELECT c.id,..jlxc_news_second_comment..." />
+            <marker date="1439209165000" expanded="true" signature="79309:79477" placeholder="SELECT id,ty..." />
+            <marker date="1439209165000" expanded="true" signature="80006:80220" placeholder="SELECT l.use..jlxc_news_like..." />
+            <marker date="1439209165000" expanded="true" signature="82650:82792" placeholder="SELECT sub_u..jlxc_attachment..." />
+            <marker date="1439209165000" expanded="true" signature="86741:86883" placeholder="SELECT sub_u..jlxc_attachment..." />
+            <marker date="1439209165000" expanded="true" signature="95044:95186" placeholder="SELECT sub_u..jlxc_attachment..." />
+            <marker date="1439209165000" expanded="true" signature="98011:98245" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="105455:105704" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="106635:106814" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="114958:115079" placeholder="SELECT * fro..jlxc_chatroom..." />
+            <marker date="1439209165000" expanded="true" signature="115546:115695" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+            <marker date="1439209165000" expanded="true" signature="123561:123710" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+            <marker date="1439209165000" expanded="true" signature="123892:124085" placeholder="SELECT u.id ..jlxc_chatroom_member..." />
+            <marker date="1439209165000" expanded="true" signature="124851:125216" placeholder="SELECT c.cha..jlxc_chatroom..." />
+            <marker date="1439209165000" expanded="true" signature="125687:125836" placeholder="SELECT t.tag..jlxc_chatroom_tag..." />
+            <marker date="1439209165000" expanded="true" signature="128675:128997" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="130162:130522" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="131887:132230" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="135489:135646" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="135785:135951" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="137925:138201" placeholder="SELECT u.id,..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="138345:138621" placeholder="SELECT u.id,..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="139297:139534" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="139668:139901" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="140422:140651" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="140781:141006" placeholder="SELECT u.id,..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="143152:143259" placeholder="SELECT * FRO..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="144517:144660" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="148421:148578" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="148705:148871" placeholder="SELECT count..." />
+            <marker date="1439209165000" expanded="true" signature="150825:151087" placeholder="SELECT u.id ..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="151283:151545" placeholder="SELECT u.id ..jlxc_relationship..." />
+            <marker date="1439209165000" expanded="true" signature="152364:152587" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="152769:152988" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="153517:153732" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="153903:154114" placeholder="SELECT u.id ..jlxc_user..." />
+            <marker date="1439209165000" expanded="true" signature="157830:157937" placeholder="SELECT * FRO..jlxc_user..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
