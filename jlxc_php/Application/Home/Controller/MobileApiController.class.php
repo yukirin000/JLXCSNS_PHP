@@ -3,12 +3,10 @@ namespace Home\Controller;
 use Org\Util\Date;
 use Org\Util\Date1;
 use Org\Util\Haha;
-use Org\Util\Qrcode;
+use Org\Util\QRcode;
 use Org\Util\ServerAPI;
 use Org\Util\TDea;
-use Org\Util\testgg;
-use Org\Util\TTe;
-use Org\Util\ttt;
+use Org\Util\Yunba;
 use Think\Controller;
 use Think\Exception;
 use Think\Log;
@@ -22,7 +20,7 @@ class MobileApiController extends Controller {
     private $attachmentUrl = 'http://192.168.1.101/jlxc_php/Uploads/';
 
     public function index(){
-		echo JLXC."haha\n";   
+		echo JLXC."haha\n";
 
 
         //http://rest.yunba.io:8080?method=publish&appkey=555de1ac27302bb31589369c&seckey=sec-pWEmt2isYrelVhjaRvbPUcM8dRokodtpmi0Kj0Q3xQyqR76R&topic=jlxc19&msg="Thistest"
@@ -471,6 +469,7 @@ class MobileApiController extends Controller {
      */
     public function getUserQRCode(){
         try{
+
             $uid = $_REQUEST['uid'];
             if(empty($uid)){
                 returnJson(0,"用户不能为空=_=");
@@ -1611,8 +1610,14 @@ class MobileApiController extends Controller {
                 array_push($friends, $friend['friend_id']);
             }
             $inFriendFriends = implode(',',$friends);
+            if(empty($inFriendFriends)){
+                $inFriendFriends = '0';
+            }
             array_push($friends, $user_id);
             $notInFriends = implode(',',$friends);
+            if(empty($notInFriends)){
+                $notInFriends = '0';
+            }
 
             //先计算人数 然后计算比例
             //学校人数
@@ -1657,6 +1662,9 @@ class MobileApiController extends Controller {
                 array_push($friendFriends, $friend['friend_id']);
             }
             $inFriendFriends = implode(',',$friendFriends);
+            if(empty($inFriendFriends)){
+                $inFriendFriends = '0';
+            }
 
             //好友not in
             $noFriendFriends = array();
@@ -1673,6 +1681,9 @@ class MobileApiController extends Controller {
             }
             array_push($noFriendFriends, $user_id);
             $notInFriendFriends = implode(',',$noFriendFriends);
+            if(empty($inFriendFriends)){
+                $inFriendFriends = '0';
+            }
 
             //好友的好友
             //男
@@ -1699,6 +1710,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
 
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
@@ -1721,7 +1735,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
-
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
@@ -1794,6 +1810,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
             $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($noFriendFriends));
             $leftList = $userModel->query($sql);
             //剩余填充
@@ -2974,7 +2993,7 @@ class MobileApiController extends Controller {
             if($friendList){
                 returnJson(1,"获取成功", $result);
             }else{
-                returnJson(0,"本来就没有");
+                returnJson(1,"本来就没有");
             }
             return;
         }catch (Exception $e) {
@@ -3792,9 +3811,14 @@ class MobileApiController extends Controller {
                 array_push($friends, $friend['friend_id']);
             }
             $inFriendFriends = implode(',',$friends);
+            if(empty($inFriendFriends)){
+                $inFriendFriends = '0';
+            }
             array_push($friends, $user_id);
             $notInFriends = implode(',',$friends);
-
+            if(empty($notInFriends)){
+                $notInFriends = '0';
+            }
             //先计算人数 然后计算比例
             //学校人数
             $schoolCount = $userModel->field('count(1) count')->where('delete_flag=0 and school_code="'.$user['school_code'].'"')->find();
@@ -3838,7 +3862,9 @@ class MobileApiController extends Controller {
                 array_push($friendFriends, $friend['friend_id']);
             }
             $inFriendFriends = implode(',',$friendFriends);
-
+            if(empty($inFriendFriends)){
+                $inFriendFriends = '0';
+            }
             //好友not in
             $noFriendFriends = array();
             foreach($friendList as $friend){
@@ -3854,7 +3880,9 @@ class MobileApiController extends Controller {
             }
             array_push($noFriendFriends, $user_id);
             $notInFriendFriends = implode(',',$noFriendFriends);
-
+            if(empty($notInFriendFriends)){
+                $notInFriendFriends = '0';
+            }
             //好友的好友
             //男
             $girlSql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
@@ -3880,7 +3908,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
-
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
@@ -3902,7 +3932,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
-
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
@@ -3963,6 +3995,9 @@ class MobileApiController extends Controller {
                 array_push($noFriendFriends, $friend['id']);
             }
             $notInDistrictFriends = implode(',',$noFriendFriends);
+            if(empty($notInDistrictFriends)){
+                $notInDistrictFriends = '0';
+            }
             $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($selectList));
             $leftList = $userModel->query($sql);
             //剩余填充
