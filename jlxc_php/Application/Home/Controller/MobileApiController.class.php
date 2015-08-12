@@ -150,13 +150,13 @@ class MobileApiController extends Controller {
             $data['im_token'] = getRongIMToken('jlxc'.$result, $data['name'], $this->attachmentUrl.$user['head_image']);
             $data['id'] = $result;
             $ret = $registerModel->save($data);
-            if($ret) {
-                $loginModel = M('jlxc_user');
-                $user = $loginModel->where('username='.$username)->find();
-                returnJson(1,"注册成功", $user);
-            }else{
-                returnJson(0,"注册失败T_T");
-            }
+//            if($ret) {
+            $loginModel = M('jlxc_user');
+            $user = $loginModel->where('username='.$username)->find();
+            returnJson(1,"注册成功", $user);
+//            }else{
+//                returnJson(0,"注册失败T_T");
+//            }
 //            }else{
 //                returnJson(0,"无效的验证码T_T");
 //            }
@@ -1091,7 +1091,7 @@ class MobileApiController extends Controller {
                         $news = $newsList[$i];
                         //该状态发的图片
                         $imageSql = 'SELECT id,type,sub_url,url,size,add_date
-                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY id DESC';
+                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY url';
                         $images = $findNews->query($imageSql);
                         //返回尺寸
                         for($j=0; $j<count($images); $j++) {
@@ -1845,7 +1845,7 @@ class MobileApiController extends Controller {
                         $news = $newsList[$i];
                         //该状态发的图片
                         $imageSql = 'SELECT id,type,sub_url,url,size,add_date
-                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY id DESC';
+                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY url';
                         $images = $findNews->query($imageSql);
                         //返回尺寸
                         for($j=0; $j<count($images); $j++) {
@@ -1986,7 +1986,7 @@ class MobileApiController extends Controller {
                         $news = $newsList[$i];
                         //该状态发的图片
                         $imageSql = 'SELECT id,type,sub_url,url,size,add_date
-                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY id DESC';;
+                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY url';
                         $images = $findNews->query($imageSql);
                         //返回尺寸
                         for($j=0; $j<count($images); $j++) {
@@ -2227,7 +2227,7 @@ class MobileApiController extends Controller {
 
             //该状态发的图片
             $imageSql = 'SELECT id,type,sub_url,url,size,add_date
-                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY id DESC';
+                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY url';
             $images = $findNews->query($imageSql);
             //返回尺寸
             for($j=0; $j<count($images); $j++) {
@@ -2993,7 +2993,7 @@ class MobileApiController extends Controller {
             if($friendList){
                 returnJson(1,"获取成功", $result);
             }else{
-                returnJson(1,"本来就没有");
+                returnJson(1,"本来就没有", $result);
             }
             return;
         }catch (Exception $e) {
