@@ -162,7 +162,7 @@ function pushMessage($target_id, $message, $type){
 
 //融云推送
 function getRongConnection(){
-    $rong = new \Org\Util\ServerAPI('8luwapkvufv3l','Z42GtwF2gN');
+    $rong = new \Org\Util\ServerAPI('8brlm7ufr4fw3','VavvKRelw2');
     return $rong;
 }
 

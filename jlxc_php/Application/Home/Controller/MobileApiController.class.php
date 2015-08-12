@@ -341,9 +341,8 @@ class MobileApiController extends Controller {
             if($user){
 
                 $user['login_token'] = base64_encode($username.time());
-                if(empty($user['im_token'])){
-                    $user['im_token'] = getRongIMToken('jlxc'.$user['id'], $user['name'],$this->attachmentUrl.$user['head_image']);
-                }
+//                if(empty($user['im_token'])){}
+                $user['im_token'] = getRongIMToken('jlxc'.$user['id'], $user['name'],$this->attachmentUrl.$user['head_image']);
 
                 $registerModel = D('jlxc_user');
                 $registerModel->save($user);
