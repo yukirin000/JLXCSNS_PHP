@@ -613,13 +613,13 @@ class MobileApiController extends Controller {
 
             $user['update_date'] = time();
             $updateModel = D('jlxc_user');
-            $ret = $updateModel->save($user);
-            if($ret){
-                returnJson(1,"保存成功", $user);
-                return;
-            }else{
-                returnJson(0,"保存失败!");
-            }
+            $updateModel->save($user);
+//            if($ret){
+            returnJson(1,"保存成功", $user);
+//                return;
+//            }else{
+//                returnJson(0,"保存失败!");
+//            }
 
             return;
 
@@ -1651,9 +1651,9 @@ class MobileApiController extends Controller {
 
             //学校的人
             $schoolGirlList = $userModel->where('delete_flag=0 and sex=1 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->limit(0,(int)($countArr[0]*$ratio))->select();
+                ->order('RAND()')->limit(0,(int)($countArr[0]*$ratio))->select();
             $schoolBoyList = $userModel->where('delete_flag=0 and sex=0 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->limit(0,$countArr[0]-count($schoolGirlList))->select();
+                ->order('RAND()')->limit(0,$countArr[0]-count($schoolGirlList))->select();
 
             //好友in
             $friendFriends = array();
@@ -1688,12 +1688,12 @@ class MobileApiController extends Controller {
             //男
             $girlSql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
                   WHERE u.sex=1 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id LIMIT 0,'.((int)($countArr[1]*$ratio));
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.((int)($countArr[1]*$ratio));
             $girlFriendFriendList = $relationshipModel->query($girlSql);
             //女
             $boySql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
                   WHERE u.sex=0 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
             $boyFriendFriendList = $relationshipModel->query($boySql);
 
             $schoolModel = M('jlxc_school');
@@ -1716,12 +1716,12 @@ class MobileApiController extends Controller {
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.((int)($countArr[2]*$ratio));
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[2]*$ratio));
             $girlDistrictList = $schoolModel->query($girlSql);
             //男
             $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                   WHERE u.sex=0 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.($countArr[2]-count($girlDistrictList));
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[2]-count($girlDistrictList));
             $boyDistrictList = $schoolModel->query($boySql);
 
             //同城的人
@@ -1740,12 +1740,12 @@ class MobileApiController extends Controller {
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.((int)($countArr[3]*$ratio));
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[3]*$ratio));
             $girlCityList = $schoolModel->query($girlSql);
             //男
             $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                   WHERE u.sex=0 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.($countArr[3]-count($girlCityList));
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[3]-count($girlCityList));
             $boyCityList = $schoolModel->query($boySql);
 
             //完全版集合
@@ -3851,9 +3851,9 @@ class MobileApiController extends Controller {
 
             //学校的人
             $schoolGirlList = $userModel->where('delete_flag=0 and sex=1 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->limit(0,(int)($countArr[0]*$ratio))->select();
+                ->order('RAND()')->limit(0,(int)($countArr[0]*$ratio))->select();
             $schoolBoyList = $userModel->where('delete_flag=0 and sex=0 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->limit(0,$countArr[0]-count($schoolGirlList))->select();
+                ->order('RAND()')->limit(0,$countArr[0]-count($schoolGirlList))->select();
 
             //好友in
             $friendFriends = array();
@@ -3886,12 +3886,12 @@ class MobileApiController extends Controller {
             //男
             $girlSql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
                   WHERE u.sex=1 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id LIMIT 0,'.((int)($countArr[1]*$ratio));
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.((int)($countArr[1]*$ratio));
             $girlFriendFriendList = $relationshipModel->query($girlSql);
             //女
             $boySql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
                   WHERE u.sex=0 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
             $boyFriendFriendList = $relationshipModel->query($boySql);
 
             $schoolModel = M('jlxc_school');
@@ -3913,12 +3913,12 @@ class MobileApiController extends Controller {
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.((int)($countArr[2]*$ratio));
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[2]*$ratio));
             $girlDistrictList = $schoolModel->query($girlSql);
             //男
             $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                   WHERE u.sex=0 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.($countArr[2]-count($girlDistrictList));
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[2]-count($girlDistrictList));
             $boyDistrictList = $schoolModel->query($boySql);
 
             //同城的人
@@ -3937,12 +3937,12 @@ class MobileApiController extends Controller {
             //女
             $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                     WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.((int)($countArr[3]*$ratio));
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[3]*$ratio));
             $girlCityList = $schoolModel->query($girlSql);
             //男
             $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
                   WHERE u.sex=0 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') LIMIT 0,'.($countArr[3]-count($girlCityList));
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[3]-count($girlCityList));
             $boyCityList = $schoolModel->query($boySql);
 
             //完全版集合
