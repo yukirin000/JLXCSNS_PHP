@@ -1000,7 +1000,7 @@ class MobileApiController extends Controller {
 
                 //好友列表
                 $friendSql = 'SELECT r.friend_id, u.head_sub_image FROM jlxc_user u,jlxc_relationship r
-                              WHERE r.delete_flag=0 AND u.id=r.friend_id AND r.user_id="'.$uid.'" ORDER BY r.add_date DESC LIMIT 3';
+                              WHERE r.delete_flag=0 AND u.id=r.friend_id AND r.user_id="'.$uid.'" ORDER BY r.add_date DESC LIMIT 4';
                 $friends = $relationModel->query($friendSql);
                 if(isset($friends)){
                     $user['friend_list'] = $friends;
