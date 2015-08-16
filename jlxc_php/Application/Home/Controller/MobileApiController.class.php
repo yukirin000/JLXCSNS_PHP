@@ -1568,12 +1568,12 @@ class MobileApiController extends Controller {
                 }
 
                 $newsModel->commit();
-                returnJson(1,'保存成功', '');
+                returnJson(1,'发布成功', '');
                 return;
 
             }else{
                 $newsModel->rollback();
-                returnJson(0,'保存失败!');
+                returnJson(0,'发布失败!');
             }
 
             return;
