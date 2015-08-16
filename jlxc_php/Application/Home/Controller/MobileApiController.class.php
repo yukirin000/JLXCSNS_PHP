@@ -336,7 +336,11 @@ class MobileApiController extends Controller {
             $password = $_REQUEST['password'];
             //判断用户名密码
             $findUser = M('jlxc_user');
-            $user = $findUser->where(array('delete_flag=0 and username='.$username ,'password="'.$password.'"'))->find();
+            $user = $findUser->where(array('username='.$username ,'password="'.$password.'"'))->find();
+//            if($user['delete_flag'] == 1){
+//                returnJson(0,"很遗憾 您因为行为不当已被管理员封禁");
+//                return;
+//            }
 
             if($user){
 
@@ -600,7 +604,7 @@ class MobileApiController extends Controller {
                     //拼接
                     $subpath = $preffix.'_sub'.$suffix;
                     $user['head_sub_image'] = $subpath;
-                    $image->thumb(270, 270)->save('./Uploads/'.$subpath);
+                    $image->thumb(360, 360)->save('./Uploads/'.$subpath, null, 90);
                 }
             }
 
@@ -939,6 +943,18 @@ class MobileApiController extends Controller {
             $current_id = $_REQUEST['current_id'];
             $userModel = M('jlxc_user');
             $user = $userModel->find($uid);
+
+            $findUser = M('jlxc_user');
+            $checkUser = $findUser->find($current_id);
+            if(!$checkUser){
+                returnJson(0 ,'该用户不存在T_T');
+                return;
+            }
+            if($checkUser['delete_flag'] == 1){
+                returnJson(0 ,'您因为不当操作，已经被管理员拉黑');
+                return;
+            }
+
             if($user){
                 //附件列表
                 $findImagesModel = M('jlxc_attachment');
@@ -1333,7 +1349,7 @@ class MobileApiController extends Controller {
                         //拼接
                         $subpath = $preffix.'_sub'.$suffix;
                         $user['head_sub_image'] = $subpath;
-                        $image->thumb(270, 270)->save('./Uploads/'.$subpath);
+                        $image->thumb(360, 360)->save('./Uploads/'.$subpath, null, 90);
                     }
                     $retPath = $path;
                 }
@@ -1461,10 +1477,19 @@ class MobileApiController extends Controller {
             $content_text = $_REQUEST['content_text'];
             $location = $_REQUEST['location'];
 
+            if(empty($_FILES) && empty($content_text)) {
+                returnJson(0 ,'内容不能为空T_T');
+                return;
+            }
+
             $findUser = M('jlxc_user');
             $user = $findUser->find($uid);
             if(!$user){
                 returnJson(0 ,'该用户不存在T_T');
+                return;
+            }
+            if($user['delete_flag'] == 1){
+                returnJson(0 ,'您因为不当操作，已经被管理员拉黑');
                 return;
             }
 
@@ -1525,7 +1550,7 @@ class MobileApiController extends Controller {
                         $single_file['url'] = $path;
                         $single_file['size'] = filesize('./Uploads/'.$path);
                         $single_file['add_date'] = time();
-                        $image->thumb(270, 270)->save('./Uploads/'.$subpath);
+                        $image->thumb(360, 360)->save('./Uploads/'.$subpath, null, 90);
 
                         array_push($attachment, $single_file);
 
@@ -2283,6 +2308,17 @@ class MobileApiController extends Controller {
             $comment['comment_content'] = $_REQUEST['comment_content'];
             $comment['add_date'] = time();
 
+            $findUser = M('jlxc_user');
+            $checkUser = $findUser->find($comment['user_id']);
+            if(!$checkUser){
+                returnJson(0 ,'该用户不存在T_T');
+                return;
+            }
+            if($checkUser['delete_flag'] == 1){
+                returnJson(0 ,'您因为不当操作，已经被管理员拉黑');
+                return;
+            }
+
             $newsModel = M('jlxc_news_content');
             $news = $newsModel->where('id='.$comment['news_id'].' and delete_flag = 0')->find();
             if(!$news){
@@ -2373,6 +2409,17 @@ class MobileApiController extends Controller {
             $secondComment['top_comment_id'] = $_REQUEST['top_comment_id'];
             $secondComment['comment_content'] = $_REQUEST['comment_content'];
             $secondComment['add_date'] = time();
+
+            $findUser = M('jlxc_user');
+            $checkUser = $findUser->find($secondComment['user_id']);
+            if(!$checkUser){
+                returnJson(0 ,'该用户不存在T_T');
+                return;
+            }
+            if($checkUser['delete_flag'] == 1){
+                returnJson(0 ,'您因为不当操作，已经被管理员拉黑');
+                return;
+            }
 
             $newsModel = M('jlxc_news_content');
             $news = $newsModel->where('id='.$secondComment['news_id'].' and delete_flag = 0')->find();
@@ -4544,7 +4591,7 @@ class MobileApiController extends Controller {
 
         $image = new \Think\Image();
         $image->open('./Uploads/2015-05-13/11431526535.png');
-        $ret = $image->thumb(270, 270)->save('./Uploads/2015-05-13/11431526535_sub.png');
+        $ret = $image->thumb(360, 360)->save('./Uploads/2015-05-13/11431526535_sub.png', null, 90);
         echo $ret;
         return;
 
