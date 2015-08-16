@@ -1558,11 +1558,11 @@ class MobileApiController extends Controller {
                     $aret = $attachmentModel->addAll($attachment);
                     if($aret){
                         $newsModel->commit();
-                        returnJson(1,'保存成功', $retJson);
+                        returnJson(1,'发布成功', $retJson);
                         return;
                     }else{
                         $newsModel->rollback();
-                        returnJson(0,'保存失败!');
+                        returnJson(0,'发布失败!');
                         return;
                     }
                 }
