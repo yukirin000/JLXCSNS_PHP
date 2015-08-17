@@ -346,7 +346,13 @@ class MobileApiController extends Controller {
 
                 $user['login_token'] = base64_encode($username.time());
 //                if(empty($user['im_token'])){}
-                $user['im_token'] = getRongIMToken('jlxc'.$user['id'], $user['name'],$this->attachmentUrl.$user['head_image']);
+
+                try{
+                    //异常了也正常进行
+                    $user['im_token'] = getRongIMToken('jlxc'.$user['id'], $user['name'],$this->attachmentUrl.$user['head_image']);
+                }catch (Exception $e){
+
+                }
 
                 $registerModel = D('jlxc_user');
                 $registerModel->save($user);
@@ -1619,233 +1625,268 @@ class MobileApiController extends Controller {
 
             /////////////////////////////////查找人群处理-开始/////////////////////////////////////
             $userModel = M('jlxc_user');
-            $user=$userModel->where('id='.$user_id)->find();
-            $ratio = 0.8;
-            if($user['sex']=1){
-                $ratio = 0.2;
-            }
-            //我的好友
-            $relationshipModel = M('jlxc_relationship');
-            $friendList = $relationshipModel->where('delete_flag=0 and user_id='.$user_id)->select();
-            $leftCount = 150-count($friendList);
-
-            $friends = array();
-            foreach($friendList as $friend){
-                array_push($friends, $friend['friend_id']);
-            }
-            $inFriendFriends = implode(',',$friends);
-            if(empty($inFriendFriends)){
-                $inFriendFriends = '0';
-            }
-            array_push($friends, $user_id);
-            $notInFriends = implode(',',$friends);
-            if(empty($notInFriends)){
-                $notInFriends = '0';
-            }
-
-            //先计算人数 然后计算比例
-            //学校人数
-            $schoolCount = $userModel->field('count(1) count')->where('delete_flag=0 and school_code="'.$user['school_code'].'"')->find();
-            //好友的好友人数
-            $friendFriendCount = $relationshipModel->where('delete_flag=0 and user_id in ('.$inFriendFriends.')'.'
-                             ')->group('friend_id')->select();
-            //同区不同校的人数
             $schoolModel = M('jlxc_school');
-            $school = $schoolModel->where('code='.$user['school_code'])->find();
-            $districtSql = 'SELECT count(1) count FROM jlxc_user u,jlxc_school s
-                    WHERE u.school_code=s.code AND s.code<>'.$user['school_code'].' AND s.district_code='.$school['district_code'];
-            $districtCount = $schoolModel->query($districtSql);
-            //同城不同区的人数
-            $citySql = 'SELECT count(1) count FROM jlxc_user u,jlxc_school s
-                    WHERE u.school_code=s.code AND s.district_code<>'.$school['district_code'].' AND s.city_code='.$school['city_code'];
-            $cityCount = $schoolModel->query($citySql);
-
-            //学校
-            $nowSchoolCount = $schoolCount['count'];
-            //好友的好友
-            $nowFriendCount = count($friendFriendCount);
-            //同区
-            $nowDistrictCount = $districtCount[0]['count'];
-            //同城
-            $nowCityCount = $cityCount[0]['count'];
-
-            $oriArr = array($nowSchoolCount, $nowFriendCount, $nowDistrictCount, $nowCityCount);
-            $leftCount = (int)($leftCount*14/15.0);
-            //比例数组
-            $countArr = getFriendProportion($oriArr, $leftCount);
-
-            //学校的人
-            $schoolGirlList = $userModel->where('delete_flag=0 and sex=1 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->order('RAND()')->limit(0,(int)($countArr[0]*$ratio))->select();
-            $schoolBoyList = $userModel->where('delete_flag=0 and sex=0 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
-                ->order('RAND()')->limit(0,$countArr[0]-count($schoolGirlList))->select();
-
-            //好友in
-            $friendFriends = array();
-            foreach($friendList as $friend){
-                array_push($friendFriends, $friend['friend_id']);
-            }
-            $inFriendFriends = implode(',',$friendFriends);
-            if(empty($inFriendFriends)){
-                $inFriendFriends = '0';
-            }
-
-            //好友not in
-            $noFriendFriends = array();
-            foreach($friendList as $friend){
-                array_push($noFriendFriends, $friend['friend_id']);
-            }
-            //学校女孩
-            foreach($schoolGirlList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            //学校男孩
-            foreach($schoolBoyList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            array_push($noFriendFriends, $user_id);
-            $notInFriendFriends = implode(',',$noFriendFriends);
-            if(empty($inFriendFriends)){
-                $inFriendFriends = '0';
-            }
-
-            //好友的好友
-            //男
-            $girlSql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
-                  WHERE u.sex=1 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.((int)($countArr[1]*$ratio));
-            $girlFriendFriendList = $relationshipModel->query($girlSql);
-            //女
-            $boySql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
-                  WHERE u.sex=0 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
-                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
-            $boyFriendFriendList = $relationshipModel->query($boySql);
-
-            $schoolModel = M('jlxc_school');
-            $school = $schoolModel->where('code='.$user['school_code'])->find();
-
-            //同区的人
-            //朋友的朋友女孩
-            foreach($girlFriendFriendList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            //朋友的朋友男孩
-            foreach($boyFriendFriendList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            $notInDistrictFriends = implode(',',$noFriendFriends);
-            if(empty($notInDistrictFriends)){
-                $notInDistrictFriends = '0';
-            }
-
-            //女
-            $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
-                    WHERE u.sex=1 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[2]*$ratio));
-            $girlDistrictList = $schoolModel->query($girlSql);
-            //男
-            $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
-                  WHERE u.sex=0 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[2]-count($girlDistrictList));
-            $boyDistrictList = $schoolModel->query($boySql);
-
-            //同城的人
-            //同区女孩
-            foreach($girlDistrictList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            //同区男孩
-            foreach($boyDistrictList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            $notInDistrictFriends = implode(',',$noFriendFriends);
-            if(empty($notInDistrictFriends)){
-                $notInDistrictFriends = '0';
-            }
-            //女
-            $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
-                    WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[3]*$ratio));
-            $girlCityList = $schoolModel->query($girlSql);
-            //男
-            $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
-                  WHERE u.sex=0 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
-                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[3]-count($girlCityList));
-            $boyCityList = $schoolModel->query($boySql);
-
+            $inStr = '0';
             //完全版集合
             $selectList = array();
-            //查询集合
-            $inList = array();
-            //type 1自己 2好友 3同校 4朋友的朋友 5同区 6同城
-            $selectList[$user_id]=array('type'=>'1');
-            array_push($inList, $user_id);
-            //你的好友
-            foreach($friendList as $friend){
-                $selectList[$friend['friend_id']]=array('type'=>'2');
-                array_push($inList, $friend['friend_id']);
-            }
-            //学校女孩
-            foreach($schoolGirlList as $friend){
-                $selectList[$friend['id']]=array('type'=>'3');
-                array_push($inList, $friend['id']);
-            }
-            //学校男孩
-            foreach($schoolBoyList as $friend){
-                $selectList[$friend['id']]=array('type'=>'3');
-                array_push($inList, $friend['id']);
-            }
-            //朋友的朋友女孩
-            foreach($girlFriendFriendList as $friend){
-                $selectList[$friend['id']]=array('type'=>'4','fid'=>$friend['fid']);
-                array_push($inList, $friend['id']);
-            }
-            //朋友的朋友男孩
-            foreach($boyFriendFriendList as $friend){
-                $selectList[$friend['id']]=array('type'=>'4','fid'=>$friend['fid']);
-                array_push($inList, $friend['id']);
-            }
-            //同区女孩
-            foreach($girlDistrictList as $friend){
-                $selectList[$friend['id']]=array('type'=>'5','school_code'=>$friend['school_code']);
-                array_push($inList, $friend['id']);
-            }
-            //同区男孩
-            foreach($boyDistrictList as $friend){
-                $selectList[$friend['id']]=array('type'=>'5','school_code'=>$friend['school_code']);
-                array_push($inList, $friend['id']);
-            }
-            //同城女孩
-            foreach($girlCityList as $friend){
-                $selectList[$friend['id']]=array('type'=>'6','school_code'=>$friend['school_code']);
-                array_push($inList, $friend['id']);
-            }
-            //同城男孩
-            foreach($boyCityList as $friend){
-                $selectList[$friend['id']]=array('type'=>'6','school_code'=>$friend['school_code']);
-                array_push($inList, $friend['id']);
+
+            $cache = null;
+            $cacheModel = M('jlxc_recommend_cache');
+
+            //不是第一页的时候 使用缓存
+            if($page > 1){
+                $cache = $cacheModel->where('uid='.$user_id)->find();
+                if(!empty($cache)){
+                    $inStr = $cache['recommend_list'];
+                    $selectList = json_decode($cache['recommend_type'], true);
+                    //如果推荐为空 重新匹配
+                    if(empty($inStr)){
+                        $cache = null;
+                    }
+                }
             }
 
-            //其他随机填充
-            foreach($girlCityList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            foreach($boyCityList as $friend){
-                array_push($noFriendFriends, $friend['id']);
-            }
-            $notInDistrictFriends = implode(',',$noFriendFriends);
-            if(empty($notInDistrictFriends)){
-                $notInDistrictFriends = '0';
-            }
-            $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($noFriendFriends));
-            $leftList = $userModel->query($sql);
-            //剩余填充
-            foreach($leftList as $friend){
-                $selectList[$friend['id']]=array('type'=>'7');
-                array_push($inList, $friend['id']);
+            //缓存为空 就重新获取一次规则
+            if(empty($cache)){
+                $user=$userModel->where('id='.$user_id)->find();
+                //性别比例
+                $ratio = 0.8;
+                if($user['sex']=1){
+                    $ratio = 0.2;
+                }
+                //我的好友
+                $relationshipModel = M('jlxc_relationship');
+                $friendList = $relationshipModel->where('delete_flag=0 and user_id='.$user_id)->select();
+                $leftCount = 150-count($friendList);
+
+                $friends = array();
+                foreach($friendList as $friend){
+                    array_push($friends, $friend['friend_id']);
+                }
+                $inFriendFriends = implode(',',$friends);
+                if(empty($inFriendFriends)){
+                    $inFriendFriends = '0';
+                }
+                array_push($friends, $user_id);
+                $notInFriends = implode(',',$friends);
+                if(empty($notInFriends)){
+                    $notInFriends = '0';
+                }
+
+                //先计算人数 然后计算比例
+                //学校人数
+                $schoolCount = $userModel->field('count(1) count')->where('delete_flag=0 and school_code="'.$user['school_code'].'"')->find();
+                //好友的好友人数
+                $friendFriendCount = $relationshipModel->where('delete_flag=0 and user_id in ('.$inFriendFriends.')'.'
+                             ')->group('friend_id')->select();
+                //同区不同校的人数
+                $school = $schoolModel->where('code='.$user['school_code'])->find();
+                $districtSql = 'SELECT count(1) count FROM jlxc_user u,jlxc_school s
+                    WHERE u.school_code=s.code AND s.code<>'.$user['school_code'].' AND s.district_code='.$school['district_code'];
+                $districtCount = $schoolModel->query($districtSql);
+                //同城不同区的人数
+                $citySql = 'SELECT count(1) count FROM jlxc_user u,jlxc_school s
+                    WHERE u.school_code=s.code AND s.district_code<>'.$school['district_code'].' AND s.city_code='.$school['city_code'];
+                $cityCount = $schoolModel->query($citySql);
+
+                //学校
+                $nowSchoolCount = $schoolCount['count'];
+                //好友的好友
+                $nowFriendCount = count($friendFriendCount);
+                //同区
+                $nowDistrictCount = $districtCount[0]['count'];
+                //同城
+                $nowCityCount = $cityCount[0]['count'];
+
+                $oriArr = array($nowSchoolCount, $nowFriendCount, $nowDistrictCount, $nowCityCount);
+                $leftCount = (int)($leftCount*14/15.0);
+                //比例数组
+                $countArr = getFriendProportion($oriArr, $leftCount);
+
+                //学校的人
+                $schoolGirlList = $userModel->where('delete_flag=0 and sex=1 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
+                    ->order('RAND()')->limit(0,(int)($countArr[0]*$ratio))->select();
+                $schoolBoyList = $userModel->where('delete_flag=0 and sex=0 and school_code="'.$user['school_code'].'"'.' and id not in ('.$notInFriends.')')
+                    ->order('RAND()')->limit(0,$countArr[0]-count($schoolGirlList))->select();
+
+                //好友in
+                $friendFriends = array();
+                foreach($friendList as $friend){
+                    array_push($friendFriends, $friend['friend_id']);
+                }
+                $inFriendFriends = implode(',',$friendFriends);
+                if(empty($inFriendFriends)){
+                    $inFriendFriends = '0';
+                }
+
+                //好友not in
+                $noFriendFriends = array();
+                foreach($friendList as $friend){
+                    array_push($noFriendFriends, $friend['friend_id']);
+                }
+                //学校女孩
+                foreach($schoolGirlList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                //学校男孩
+                foreach($schoolBoyList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                array_push($noFriendFriends, $user_id);
+                $notInFriendFriends = implode(',',$noFriendFriends);
+                if(empty($inFriendFriends)){
+                    $inFriendFriends = '0';
+                }
+
+                //好友的好友
+                //男
+                $girlSql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
+                  WHERE u.sex=1 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.((int)($countArr[1]*$ratio));
+                $girlFriendFriendList = $relationshipModel->query($girlSql);
+                //女
+                $boySql = 'SELECT u.id,r.user_id fid FROM jlxc_relationship r, jlxc_user u
+                  WHERE u.sex=0 AND u.id=r.friend_id and r.delete_flag=0 and r.user_id in ('.$inFriendFriends.')'.'
+                  and r.friend_id not in ('.$notInFriendFriends.') GROUP BY r.friend_id ORDER BY RAND() LIMIT 0,'.($countArr[1]-count($girlFriendFriendList));
+                $boyFriendFriendList = $relationshipModel->query($boySql);
+
+                $schoolModel = M('jlxc_school');
+                $school = $schoolModel->where('code='.$user['school_code'])->find();
+
+                //同区的人
+                //朋友的朋友女孩
+                foreach($girlFriendFriendList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                //朋友的朋友男孩
+                foreach($boyFriendFriendList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                $notInDistrictFriends = implode(',',$noFriendFriends);
+                if(empty($notInDistrictFriends)){
+                    $notInDistrictFriends = '0';
+                }
+
+                //女
+                $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
+                    WHERE u.sex=1 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[2]*$ratio));
+                $girlDistrictList = $schoolModel->query($girlSql);
+                //男
+                $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
+                  WHERE u.sex=0 AND u.school_code=s.code AND s.district_code='.$school['district_code'].'
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[2]-count($girlDistrictList));
+                $boyDistrictList = $schoolModel->query($boySql);
+
+                //同城的人
+                //同区女孩
+                foreach($girlDistrictList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                //同区男孩
+                foreach($boyDistrictList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                $notInDistrictFriends = implode(',',$noFriendFriends);
+                if(empty($notInDistrictFriends)){
+                    $notInDistrictFriends = '0';
+                }
+                //女
+                $girlSql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
+                    WHERE u.sex=1 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
+                    AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.((int)($countArr[3]*$ratio));
+                $girlCityList = $schoolModel->query($girlSql);
+                //男
+                $boySql = 'SELECT u.id,u.school_code FROM jlxc_user u,jlxc_school s
+                  WHERE u.sex=0 AND u.school_code=s.code AND s.city_code='.$school['city_code'].'
+                  AND u.id not in ('.$notInDistrictFriends.') ORDER BY RAND() LIMIT 0,'.($countArr[3]-count($girlCityList));
+                $boyCityList = $schoolModel->query($boySql);
+
+                //查询集合
+                $inList = array();
+                //type 1自己 2好友 3同校 4朋友的朋友 5同区 6同城
+                $selectList[$user_id]=array('type'=>'1');
+                array_push($inList, $user_id);
+                //你的好友
+                foreach($friendList as $friend){
+                    $selectList[$friend['friend_id']]=array('type'=>'2');
+                    array_push($inList, $friend['friend_id']);
+                }
+                //学校女孩
+                foreach($schoolGirlList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'3');
+                    array_push($inList, $friend['id']);
+                }
+                //学校男孩
+                foreach($schoolBoyList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'3');
+                    array_push($inList, $friend['id']);
+                }
+                //朋友的朋友女孩
+                foreach($girlFriendFriendList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'4','fid'=>$friend['fid']);
+                    array_push($inList, $friend['id']);
+                }
+                //朋友的朋友男孩
+                foreach($boyFriendFriendList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'4','fid'=>$friend['fid']);
+                    array_push($inList, $friend['id']);
+                }
+                //同区女孩
+                foreach($girlDistrictList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'5','school_code'=>$friend['school_code']);
+                    array_push($inList, $friend['id']);
+                }
+                //同区男孩
+                foreach($boyDistrictList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'5','school_code'=>$friend['school_code']);
+                    array_push($inList, $friend['id']);
+                }
+                //同城女孩
+                foreach($girlCityList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'6','school_code'=>$friend['school_code']);
+                    array_push($inList, $friend['id']);
+                }
+                //同城男孩
+                foreach($boyCityList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'6','school_code'=>$friend['school_code']);
+                    array_push($inList, $friend['id']);
+                }
+
+                //其他随机填充
+                foreach($girlCityList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                foreach($boyCityList as $friend){
+                    array_push($noFriendFriends, $friend['id']);
+                }
+                $notInDistrictFriends = implode(',',$noFriendFriends);
+                if(empty($notInDistrictFriends)){
+                    $notInDistrictFriends = '0';
+                }
+                $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($noFriendFriends));
+                $leftList = $userModel->query($sql);
+                //剩余填充
+                foreach($leftList as $friend){
+                    $selectList[$friend['id']]=array('type'=>'7');
+                    array_push($inList, $friend['id']);
+                }
+
+                $inStr = implode(',',$inList);
+
+                $cache = $cacheModel->where('uid='.$user_id)->find();
+                if(empty($cache)){
+                    $cache = array('uid'=>$user_id);
+                    $cache['recommend_list'] = $inStr;
+                    $cache['recommend_type'] = json_encode($selectList);
+                    $cacheModel->add($cache);
+                }else{
+                    $cache['recommend_list'] = $inStr;
+                    $cache['recommend_type'] = json_encode($selectList);
+                    $cacheModel->save($cache);
+                }
             }
 
-            $inStr = implode(',',$inList);
             /////////////////////////////////查找人群处理-结束/////////////////////////////////////
 
 
