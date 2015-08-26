@@ -1924,7 +1924,7 @@ class MobileApiController extends Controller {
                         //获取该状态的评论
                         $commentSql = 'SELECT c.id, u.name, u.head_image, u.head_sub_image, c.add_date, c.user_id,c.comment_content, c.like_quantity,
                                        c.like_quantity from jlxc_news_comment c, jlxc_user u WHERE c.user_id=u.id and c.delete_flag = 0
-                                        and c.news_id='.$news['id'].' ORDER BY c.like_quantity DESC LIMIT 3';
+                                        and c.news_id='.$news['id'].' ORDER BY c.add_date LIMIT 3';
                         $comments = $findNews->query($commentSql);
                         $comments = array_replace_null($comments);
                         //获取该状态点赞的人
@@ -2065,7 +2065,7 @@ class MobileApiController extends Controller {
                         //获取该状态的评论
                         $commentSql = 'SELECT c.id, u.name, u.head_image, u.head_sub_image, c.add_date, c.user_id,c.comment_content, c.like_quantity,
                                        c.like_quantity from jlxc_news_comment c, jlxc_user u WHERE c.user_id=u.id and c.delete_flag = 0
-                                        and c.news_id='.$news['id'].' ORDER BY c.like_quantity DESC LIMIT 3';
+                                        and c.news_id='.$news['id'].' ORDER BY c.add_date LIMIT 3';
                         $comments = $findNews->query($commentSql);
                         $comments = array_replace_null($comments);
                         //获取该状态点赞的人
@@ -2413,7 +2413,7 @@ class MobileApiController extends Controller {
                         'push_time'=>date('Y-m-d H:i:s', time())
                     );
                     //推送通知
-                    pushMessage($news['uid'],$content,2);
+                    pushMessage($news['uid'],$content, 2, '有人为你评论辣');
                 }
 
                 return;
@@ -2522,7 +2522,7 @@ class MobileApiController extends Controller {
                     'push_time'=>date('Y-m-d H:i:s', time())
                 );
                 //推送通知
-                pushMessage($secondComment['reply_uid'],$content,3);
+                pushMessage($secondComment['reply_uid'],$content, 3, '有人为你评论辣');
 
                 //如果不是评论的自己 则推送通知
                 if($news['uid'] != $secondComment['user_id']){
@@ -2540,7 +2540,7 @@ class MobileApiController extends Controller {
                         'push_time'=>date('Y-m-d H:i:s', time())
                     );
                     //推送通知
-                    pushMessage($news['uid'],$content,2);
+                    pushMessage($news['uid'],$content,2, '有人为你评论辣');
                 }
 
                 return;
@@ -2768,7 +2768,7 @@ class MobileApiController extends Controller {
                                     'push_time'=>date('Y-m-d H:i:s', time())
                                 );
                                 //推送通知
-                                pushMessage($news['uid'],$content,4);
+                                pushMessage($news['uid'],$content,4, '有人为你点赞辣');
                             }
 
                             return;
@@ -2897,7 +2897,7 @@ class MobileApiController extends Controller {
                             'avatar'=>$friend['head_image']
                         );
                         //推送通知
-                        pushMessage($addFriend['friend_id'],$content,1);
+                        pushMessage($addFriend['friend_id'],$content,1, $friend['name'].'添加了你~');
 
                         returnJson(1,"添加成功！");
                     }else{
@@ -2917,7 +2917,7 @@ class MobileApiController extends Controller {
                         'avatar'=>$friend['head_image']
                     );
                     //推送通知
-                    pushMessage($addFriend['friend_id'],$content,1);
+                    pushMessage($addFriend['friend_id'],$content,1, $friend['name'].'添加了你~');
 
                     returnJson(1,"添加成功！");
                 }else{
@@ -4588,7 +4588,8 @@ class MobileApiController extends Controller {
     }
 
     public function get1(){
-
+        echo pushMessage(10,"gahaha",2);
+        return;
 //        echo urlencode($_REQUEST['username']);
 //        echo json_decode(json_encode($_REQUEST['username']));
         //获取用户详细信息
@@ -4627,6 +4628,10 @@ class MobileApiController extends Controller {
 
     //http://localhost/jlxc_php/index.php/Home/MobileApi/testImage
     public function testImage(){
+        $opts = array('opts'=>array('apn_json'=>array('aps'=>array('sound'=>'bingbong.aiff','badge'=>'1', 'alert'=>'test'))));
+        echo json_encode($opts);
+        return;
+
         $path = './Uploads/2015-05-13/11431526535.png';
         echo substr($path, 0, strlen($path)-4);
 
@@ -4671,6 +4676,11 @@ class MobileApiController extends Controller {
             echo json_encode($okJson);
 //            $this->success('上传成功！');
         }
+
+        ////curl -l -H "Content-type: application/json" -X POST -d '{"method":"publish", "appkey":"55ab4554c75ecd535d69b955", "seckey":"sec-UVHzd2ioXYJlOYvLjWggCcvBDAyzXDXsvhpdu9DMKr8esMoV", "topic":"jlxc10", "msg":"just test", "opts":{"apn_json":{"aps":{"sound":"bingbong.aiff","badge": 2, "alert":"haha"}}}}' http://rest.yunba.io:8080
+        //"opts":{"apn_json":{"aps":{"sound":"bingbong.aiff","badge": 2, "alert":"haha"}}}
+        //{"opts":{"apn_json":{"aps":{"sound":"bingbong.aiff","badge":"1","alert":"test"}}}}
+
 
     }
 

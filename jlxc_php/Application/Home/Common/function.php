@@ -118,8 +118,7 @@ function array_replace_null($result)
  * //回复别人的回复 3
  * //点赞 4
  * */
-function pushMessage($target_id, $message, $type){
-
+function pushMessage($target_id, $message, $type, $apnsAlert='您有一条新消息'){
     //发送的内容
 //    $content = array('type'=>$type,
 //                     'content'=>array(
@@ -131,13 +130,17 @@ function pushMessage($target_id, $message, $type){
     $content = array('type'=>$type,
                     'content'=>$message);
 
-//      'appkey'=>'555de1ac27302bb31589369c',
-//      'seckey'=>'sec-pWEmt2isYrelVhjaRvbPUcM8dRokodtpmi0Kj0Q3xQyqR76R',
+//      'appkey'=>'55ab4554c75ecd535d69b955',
+//     'seckey'=>'sec-UVHzd2ioXYJlOYvLjWggCcvBDAyzXDXsvhpdu9DMKr8esMoV',
+
+//    'appkey'=>'55c499f19477ebf5246955f3',
+//        'seckey'=>'sec-TsIKMMPfvHKwEM5i1Zwr12veNjMZIV86sCi8b3MO0sQ3ahfR',
     $data = array ( 'method'=>'publish',
-        'appkey'=>'55c499f19477ebf5246955f3',
-        'seckey'=>'sec-TsIKMMPfvHKwEM5i1Zwr12veNjMZIV86sCi8b3MO0sQ3ahfR',
+        'appkey'=>'55ab4554c75ecd535d69b955',
+        'seckey'=>'sec-UVHzd2ioXYJlOYvLjWggCcvBDAyzXDXsvhpdu9DMKr8esMoV',
         'topic'=>JLXC.$target_id,
-        'msg'=>$content);
+        'msg'=>$content,
+        'opts'=>array('apn_json'=>array('aps'=>array('sound'=>'bingbong.aiff','badge'=>'1', 'alert'=>$apnsAlert))));
     $data_string = json_encode($data);
     $ch = curl_init('http://rest.yunba.io:8080');
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -162,7 +165,9 @@ function pushMessage($target_id, $message, $type){
 
 //融云推送
 function getRongConnection(){
-    $rong = new \Org\Util\ServerAPI('8brlm7ufr4fw3','VavvKRelw2');
+//    $rong = new \Org\Util\ServerAPI('lmxuhwagx83id','NT1p73OBgwiB'); //正式
+//    $rong = new \Org\Util\ServerAPI('8brlm7ufr4fw3','VavvKRelw2');
+    $rong = new \Org\Util\ServerAPI('lmxuhwagx83id','NT1p73OBgwiB');
     return $rong;
 }
 
