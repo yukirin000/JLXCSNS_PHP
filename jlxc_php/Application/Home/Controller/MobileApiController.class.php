@@ -1994,6 +1994,66 @@ class MobileApiController extends Controller {
     }
 
     /**
+     * @brief 学校首页
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/schoolHomeData
+     * @param user_id 用户id
+     * @param school_code 学校代码
+     * @param last_time 最后一次请求的时间
+     */
+    public function schoolHomeData(){
+        try{
+
+            $user_id = $_REQUEST['user_id'];
+            $school_code = $_REQUEST['school_code'];
+            $last_time = $_REQUEST['last_time'];
+
+            if(empty($user_id)){
+                returnJson(0,"用户Id不能为空");
+                return;
+            }
+            if(empty($school_code)){
+                returnJson(0,"学校代码不能为空");
+                return;
+            }
+            if(empty($last_time)){
+                $last_time = time();
+            }
+            //返回值数组
+            $result = array();
+            $homeModel = M('jlxc_school');
+            //学校名字地区
+            $school = $homeModel->field('city_name, district_name')->where('code='.$school_code)->find();
+            //如果学校为空
+            if(empty($school)) {
+                returnJson(0,"没这个学校。");
+                return;
+            }
+            $result['school'] = $school;
+            //信息
+            $studentSql = 'SELECT u.id uid, u.head_sub_image FROM jlxc_user u LEFT JOIN jlxc_news_content n ON(n.uid=u.id)
+                                    WHERE u.school_code='.$school_code.' GROUP BY u.id ORDER BY RAND() DESC LIMIT 10';
+            $students = $homeModel->query($studentSql);
+            $result['info'] = $students;
+            //学校人数
+            $studentCountSql = 'SELECT count(1) count FROM jlxc_user WHERE school_code='.$school_code;
+            $studentCount = $homeModel->query($studentCountSql);
+            $result['student_count'] = $studentCount[0]['count'];
+            //新消息数量
+            $sql = 'SELECT count(1) count FROM jlxc_news_content news,jlxc_user user
+                    WHERE news.add_date>='.$last_time.' and user.school_code='.$school_code.'
+                    and news.uid = user.id and news.uid <> '.$user_id.' and news.delete_flag = 0';
+            $unreadNews = $homeModel->query($sql);
+            $result['unread_news_count'] = $unreadNews[0]['count'];
+            returnJson(1,"获取成功", $result);
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+
+    /**
      * @brief 新闻列表
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/schoolNewsList
