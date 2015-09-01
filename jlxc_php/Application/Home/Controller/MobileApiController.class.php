@@ -1700,6 +1700,9 @@ class MobileApiController extends Controller {
 
                 $oriArr = array($nowSchoolCount, $nowFriendCount, $nowDistrictCount, $nowCityCount);
                 $leftCount = (int)($leftCount*14/15.0);
+                if($leftCount < 0){
+                    $leftCount = 0;
+                }
                 //比例数组
                 $countArr = getFriendProportion($oriArr, $leftCount);
 
@@ -1864,27 +1867,44 @@ class MobileApiController extends Controller {
                 if(empty($notInDistrictFriends)){
                     $notInDistrictFriends = '0';
                 }
-                $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($noFriendFriends));
-                $leftList = $userModel->query($sql);
-                //剩余填充
-                foreach($leftList as $friend){
-                    $selectList[$friend['id']]=array('type'=>'7');
-                    array_push($inList, $friend['id']);
-                }
+                if($leftCount > 0){
+                    $sql = 'SELECT * FROM jlxc_user WHERE delete_flag=0 AND id NOT IN('.$notInDistrictFriends.') ORDER BY RAND() limit '.(150-count($noFriendFriends));
+                    $leftList = $userModel->query($sql);
+                    //剩余填充
+                    foreach($leftList as $friend){
+                        $selectList[$friend['id']]=array('type'=>'7');
+                        array_push($inList, $friend['id']);
+                    }
 
-                $inStr = implode(',',$inList);
+                    $inStr = implode(',',$inList);
 
-                $cache = $cacheModel->where('uid='.$user_id)->find();
-                if(empty($cache)){
-                    $cache = array('uid'=>$user_id);
-                    $cache['recommend_list'] = $inStr;
-                    $cache['recommend_type'] = json_encode($selectList);
-                    $cacheModel->add($cache);
+                    $cache = $cacheModel->where('uid='.$user_id)->find();
+                    if(empty($cache)){
+                        $cache = array('uid'=>$user_id);
+                        $cache['recommend_list'] = $inStr;
+                        $cache['recommend_type'] = json_encode($selectList);
+                        $cacheModel->add($cache);
+                    }else{
+                        $cache['recommend_list'] = $inStr;
+                        $cache['recommend_type'] = json_encode($selectList);
+                        $cacheModel->save($cache);
+                    }
                 }else{
-                    $cache['recommend_list'] = $inStr;
-                    $cache['recommend_type'] = json_encode($selectList);
-                    $cacheModel->save($cache);
+                    $cache = $cacheModel->where('uid='.$user_id)->find();
+                    if(empty($cache)){
+                        //清空
+                        $cache['recommend_list'] = '';
+                        $cache['recommend_type'] = '';
+                        $cacheModel->add($cache);
+                    }else{
+                        //清空
+                        $cache['recommend_list'] = '';
+                        $cache['recommend_type'] = '';
+                        $cacheModel->save($cache);
+                    }
+                    $inStr = implode(',',$inList);
                 }
+
             }
 
             /////////////////////////////////查找人群处理-结束/////////////////////////////////////
@@ -1949,8 +1969,6 @@ class MobileApiController extends Controller {
                         //设置类型
                         $newsList[$i]['type'] = $selectList[$news['uid']];
                         //type 1自己 2好友 3同校 4朋友的朋友 5同区 6同城
-                        //默认为空
-                        $recommendlList[$i]['type']['content'] = '';
                         //朋友的朋友 姓名
                         if($selectList[$news['uid']]['type']==4){
                             $friendUser = $userModel->where('id='.$selectList[$news['uid']]['fid'])->find();
@@ -1965,6 +1983,10 @@ class MobileApiController extends Controller {
                         if($selectList[$news['uid']]['type']==6){
                             $friendUser = $schoolModel->where('code='.$selectList[$news['uid']]['school_code'])->find();
                             $newsList[$i]['type']['content'] = $friendUser['city_name'].'的同学';
+                        }
+                        //空的 设置为2
+                        if(empty($newsList[$i]['type'])){
+                            $newsList[$i]['type'] = '2';
                         }
                     }
                 }
@@ -2041,7 +2063,7 @@ class MobileApiController extends Controller {
             $result['student_count'] = $studentCount[0]['count'];
             //新消息数量
             $sql = 'SELECT count(1) count FROM jlxc_news_content news,jlxc_user user
-                    WHERE news.add_date>='.$last_time.' and user.school_code='.$school_code.'
+                    WHERE news.add_date>'.$last_time.' and user.school_code='.$school_code.'
                     and news.uid = user.id and news.uid <> '.$user_id.' and news.delete_flag = 0';
             $unreadNews = $homeModel->query($sql);
             $result['unread_news_count'] = $unreadNews[0]['count'];
@@ -4301,6 +4323,9 @@ class MobileApiController extends Controller {
 
         $oriArr = array($nowSchoolCount, $nowFriendCount, $nowDistrictCount, $nowCityCount);
         $leftCount = (int)($leftCount*14/15.0);
+        if($leftCount < 0){
+            $leftCount = 0;
+        }
         //比例数组
         $countArr = getFriendProportion($oriArr, $leftCount);
 
