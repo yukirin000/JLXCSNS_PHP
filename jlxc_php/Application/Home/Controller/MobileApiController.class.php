@@ -3122,7 +3122,7 @@ class MobileApiController extends Controller {
     }
 
     /**
-     * @brief 获取好友列表
+     * @brief 获取好友列表 旧版 新版请用getAttentList
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/getFriendsList
      * @param user_id 用户id
@@ -3147,6 +3147,120 @@ class MobileApiController extends Controller {
             $friendModel = M('jlxc_relationship');
             $sql = 'SELECT u.id uid, u.name,u.head_sub_image,u.school,u.head_image,r.friend_remark from jlxc_user u,jlxc_relationship r
                     WHERE r.delete_flag=0 and r.user_id='.$user_id.' and r.friend_id=u.id  order by r.add_date DESC LIMIT '.$start.','.$end;
+            $friendList = $friendModel->query($sql);
+
+            $result = array();
+            $result['list'] = $friendList;
+            //是否是最后一页
+            if(count($friendList) < $size){
+                $result['is_last'] = '1';
+            }else{
+                $result['is_last'] = '0';
+            }
+
+            //添加过
+            if($friendList){
+                returnJson(1,"获取成功", $result);
+            }else{
+                returnJson(1,"本来就没有", $result);
+            }
+            return;
+        }catch (Exception $e) {
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+    /**
+     * @brief 获取关注列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getAttentList
+     * @param user_id 用户id
+     * @param page 页数
+     * @param size 数量
+     */
+    public  function getAttentList(){
+        try{
+            $user_id = $_REQUEST['user_id'];
+            //用户为空
+            if(empty($user_id)){
+                returnJson(0,"用户为空");
+                return;
+            }
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+
+            $start = ($page-1)*$size;
+            $end   = $size;
+
+            $friendModel = M();
+            $sql = 'SELECT u.id uid, u.name,u.head_sub_image,u.school,u.head_image, CASE WHEN r2.id>0 THEN 1 ELSE 0 END AS isAttent
+                    FROM jlxc_user u, (SELECT * FROM jlxc_relationship WHERE user_id='.$user_id.' AND delete_flag=0) r1 LEFT JOIN
+                    (SELECT * FROM jlxc_relationship WHERE friend_id='.$user_id.' AND delete_flag=0) r2 ON(r1.friend_id = r2.user_id)
+                    WHERE u.id=r1.friend_id ORDER BY r1.add_date DESC LIMIT '.$start.','.$end;
+            $friendList = $friendModel->query($sql);
+
+            $result = array();
+            $result['list'] = $friendList;
+            //是否是最后一页
+            if(count($friendList) < $size){
+                $result['is_last'] = '1';
+            }else{
+                $result['is_last'] = '0';
+            }
+
+            //添加过
+            if($friendList){
+                returnJson(1,"获取成功", $result);
+            }else{
+                returnJson(1,"本来就没有", $result);
+            }
+            return;
+        }catch (Exception $e) {
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+    /**
+     * @brief 获取粉丝列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getFansList
+     * @param user_id 用户id
+     * @param page 页数
+     * @param size 数量
+     */
+    public  function getFansList(){
+        try{
+            $user_id = $_REQUEST['user_id'];
+            //用户为空
+            if(empty($user_id)){
+                returnJson(0,"用户为空");
+                return;
+            }
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+
+            $start = ($page-1)*$size;
+            $end   = $size;
+
+            $friendModel = M();
+            $sql = 'SELECT u.id uid, u.name,u.head_sub_image,u.school,u.head_image, CASE WHEN r2.id>0 THEN 1 ELSE 0 END AS hasAttent
+                    FROM jlxc_user u, (SELECT * FROM jlxc_relationship WHERE friend_id='.$user_id.' AND delete_flag=0) r1 LEFT JOIN
+                    (SELECT * FROM jlxc_relationship WHERE user_id='.$user_id.' AND delete_flag=0) r2 ON(r1.user_id = r2.friend_id)
+                    WHERE u.id=r1.user_id ORDER BY r1.add_date DESC LIMIT '.$start.','.$end;
             $friendList = $friendModel->query($sql);
 
             $result = array();
