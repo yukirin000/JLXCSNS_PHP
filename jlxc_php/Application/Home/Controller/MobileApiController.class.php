@@ -640,7 +640,7 @@ class MobileApiController extends Controller {
     }
 
     /**
-     * @brief 获取用户图片组
+     * @brief 获取用户图片组 旧版接口 新版getNewsCoverList
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/getNewsImages?uid=19
      * @param uid 用户id
@@ -652,11 +652,48 @@ class MobileApiController extends Controller {
             $findImagesModel = M('jlxc_attachment');
             $images = $findImagesModel->field('sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('3')->order('add_date desc')->select();
             $list = array();
-
             if(empty($images)){
                 $list['list'] = array();
             }else{
                 $list['list'] = $images;
+            }
+
+            if($images){
+                returnJson(1,"查询成功", $list);
+            }else{
+                returnJson(1,"还没有动态", $list);
+            }
+            return;
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+    /**
+     * @brief 获取用户图片组
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getNewsCoverList?uid=19
+     * @param uid 用户id
+     */
+    public function getNewsCoverList(){
+        try{
+            $uid = $_REQUEST['uid'];
+            //附件列表
+            $findImagesModel = M('jlxc_attachment');
+            $images = $findImagesModel->field('sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
+            $list = array();
+            if(empty($images)){
+                $list['list'] = array();
+            }else{
+                $list['list'] = $images;
+            }
+
+            $imageCount = $findImagesModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
+            if($imageCount){
+                $list['image_count'] = $imageCount['count'];
+            }else{
+                $list['image_count'] = '0';
             }
 
             if($images){
@@ -755,6 +792,36 @@ class MobileApiController extends Controller {
             }else{
                 returnJson(0,"本来就没有");
             }
+            return;
+        }catch (Exception $e) {
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+
+    /**
+     * @brief 获取粉丝数量
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getFansCount
+     * @param user_id 用户id
+     *
+     */
+    public function getFansCount(){
+        try{
+            $user_id = $_REQUEST['user_id'];
+
+            $friendModel = M('jlxc_relationship');
+            //好友数量
+            $friendCount = $friendModel->field('count(1) count')->where('delete_flag=0 AND friend_id='.$user_id)->find();
+            $list = array();
+            if($friendCount){
+                $list['fans_count'] = $friendCount['count'];
+            }else{
+                $list['fans_count'] = '0';
+            }
+
+            returnJson(1,"获取成功", $list);
+
             return;
         }catch (Exception $e) {
 
@@ -937,7 +1004,7 @@ class MobileApiController extends Controller {
 
 
     /**
-     * @brief 获取用户个人信息
+     * @brief 获取用户个人信息 旧版本接口 新版本personalInfo
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/personalInformation?uid=19
      * @param uid 查看的用户id
@@ -1020,6 +1087,152 @@ class MobileApiController extends Controller {
                     $user['friend_count'] = '0';
                 }
 
+                //好友列表
+                $friendSql = 'SELECT r.friend_id, u.head_sub_image FROM jlxc_user u,jlxc_relationship r
+                              WHERE r.delete_flag=0 AND u.id=r.friend_id AND r.user_id="'.$uid.'" ORDER BY r.add_date DESC LIMIT 4';
+                $friends = $relationModel->query($friendSql);
+                if(isset($friends)){
+                    $user['friend_list'] = $friends;
+                }else{
+                    $user['friend_list'] = array();
+                }
+
+//                //共同好友 弃用
+//                $sql = 'SELECT r1.friend_id, u.head_sub_image FROM (SELECT * FROM jlxc_relationship WHERE user_id='.$uid.' AND delete_flag=0) r1,
+//                    (SELECT * FROM jlxc_relationship WHERE user_id='.$current_id.' AND delete_flag=0) r2,
+//                    jlxc_user u WHERE r1.friend_id=r2.friend_id AND r1.friend_id=u.id ORDER BY r2.add_date DESC LIMIT 3';// LIMIT 3
+//                $friends = $visitModel->query($sql);
+//                if(isset($friends)){
+//                    $user['common_friend_list'] = $friends;
+//                }else{
+//                    $user['common_friend_list'] = array();
+//                }
+
+                //共同好友数量
+                $sql = 'SELECT count(1) count FROM (SELECT * FROM jlxc_relationship WHERE user_id='.$uid.' AND delete_flag=0) r1,
+                    (SELECT * FROM jlxc_relationship WHERE user_id='.$current_id.' AND delete_flag=0) r2,
+                    jlxc_user u WHERE r1.friend_id=r2.friend_id AND r1.friend_id=u.id';
+                $friends = $visitModel->query($sql);
+                if(isset($friends)){
+                    $user['common_friend_count'] = $friends[0]['count'];
+                }else{
+                    $user['common_friend_count'] = array();
+                }
+
+                if($images){
+                    returnJson(1,"查询成功", $user);
+                }else{
+                    returnJson(1,"还没有动态", $user);
+                }
+            }else{
+                returnJson(0,"查询失败");
+            }
+            return;
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     *
+     * @brief 获取用户个人信息
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/personalInfo?uid=19
+     * @param uid 查看的用户id
+     * @param current_id 访问的人id
+     */
+    public function personalInfo(){
+        try{
+            $uid = $_REQUEST['uid'];
+            $current_id = $_REQUEST['current_id'];
+            $userModel = M('jlxc_user');
+            $user = $userModel->find($uid);
+
+            $findUser = M('jlxc_user');
+            $checkUser = $findUser->find($current_id);
+            if(!$checkUser){
+                returnJson(0 ,'该用户不存在T_T');
+                return;
+            }
+            if($checkUser['delete_flag'] == 1){
+                returnJson(0 ,'您因为不当操作，已经被管理员拉黑');
+                return;
+            }
+
+            if($user){
+                //附件列表
+                $findImagesModel = M('jlxc_attachment');
+                $images = $findImagesModel->field('sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
+                if(isset($images)){
+                    $user['image_list'] = $images;
+                }else{
+                    $user['image_list'] = array();
+                }
+                //是否已经是好友
+                $relationModel = M('jlxc_relationship');
+                $relation = $relationModel->where('user_id='.$current_id.' and friend_id='.$uid.' and delete_flag=0')->find();
+                if($relation){
+                    $user['isFriend'] = '1';
+                }else{
+                    $user['isFriend'] = '0';
+                }
+                //最近访问
+                $visitModel = M('jlxc_visit');
+                //自己不添加
+                if($uid != $current_id){
+                    $visit = $visitModel->where('user_id='.$uid.' and visitor_id='.$current_id)->find();
+                    if($visit){
+                        if($visit['delete_flag']==0){
+                            $visit['update_date'] = time();
+                            $visit['visit_time'] = time();
+                        }else{
+
+                            $visit['update_date'] = time();
+                            $visit['visit_time'] = time();
+                            $visit['resume_date'] = time();
+                            $visit['delete_flag'] = 0;
+                        }
+                        $visitModel->save($visit);
+
+                    }else{
+                        $visit = array();
+                        $visit['user_id'] = $uid;
+                        $visit['visitor_id'] = $current_id;
+                        $visit['visit_time'] = time();
+                        $visit['add_date'] = time();
+                        $visitModel->add($visit);
+                    }
+                }
+//                //来访数量
+//                $visitCount = $visitModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
+//                if($visitCount){
+//                    $user['visit_count'] = $visitCount['count'];
+//                }else{
+//                    $user['visit_count'] = '0';
+//                }
+                //好友数量
+                $friendCount = $relationModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
+                if($friendCount){
+                    $user['friend_count'] = $friendCount['count'];
+                }else{
+                    $user['friend_count'] = '0';
+                }
+                //图片数量
+                $imageCount = $findImagesModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
+                if($imageCount){
+                    $user['image_count'] = $imageCount['count'];
+                }else{
+                    $user['image_count'] = '0';
+                }
+                //粉丝数量
+                $fansCount = $relationModel->field('count(1) count')->where('delete_flag=0 AND friend_id='.$uid)->find();
+                if($fansCount){
+                    $user['fans_count'] = $fansCount['count'];
+                }else{
+                    $user['fans_count'] = '0';
+                }
                 //好友列表
                 $friendSql = 'SELECT r.friend_id, u.head_sub_image FROM jlxc_user u,jlxc_relationship r
                               WHERE r.delete_flag=0 AND u.id=r.friend_id AND r.user_id="'.$uid.'" ORDER BY r.add_date DESC LIMIT 4';
@@ -3284,6 +3497,125 @@ class MobileApiController extends Controller {
             returnJson(0,"数据异常=_=", $e);
         }
     }
+
+    /**
+     * @brief 获取其他人的关注列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getOtherFansList
+     * @param user_id 用户id
+     * @param page 页数
+     * @param size 数量
+     */
+    public  function getOtherAttentList(){
+        try{
+            $target_user_id = $_REQUEST['target_user_id'];
+            $self_user_id = $_REQUEST['self_user_id'];
+            //用户为空
+            if(empty($self_user_id) || empty($target_user_id)){
+                returnJson(0,"用户为空");
+                return;
+            }
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+
+            $start = ($page-1)*$size;
+            $end   = $size;
+
+            $friendModel = M();
+            $sql = 'SELECT u.id uid, u.name,u.head_sub_image,u.school,u.head_image, CASE WHEN r2.id>0 THEN 1 ELSE 0 END AS isAttent
+                    FROM jlxc_user u, (SELECT * FROM jlxc_relationship WHERE user_id='.$target_user_id.' AND delete_flag=0) r1 LEFT JOIN
+                    (SELECT * FROM jlxc_relationship WHERE user_id='.$self_user_id.' AND delete_flag=0) r2 ON(r1.friend_id = r2.friend_id)
+                    WHERE u.id=r1.friend_id ORDER BY r1.add_date DESC LIMIT '.$start.','.$end;
+            $friendList = $friendModel->query($sql);
+
+            $result = array();
+            $result['list'] = $friendList;
+            //是否是最后一页
+            if(count($friendList) < $size){
+                $result['is_last'] = '1';
+            }else{
+                $result['is_last'] = '0';
+            }
+
+            //添加过
+            if($friendList){
+                returnJson(1,"获取成功", $result);
+            }else{
+                returnJson(1,"本来就没有", $result);
+            }
+            return;
+        }catch (Exception $e) {
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+
+    /**
+     * @brief 获取其他人的粉丝列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getOtherFansList
+     * @param user_id 用户id
+     * @param page 页数
+     * @param size 数量
+     */
+    public  function getOtherFansList(){
+        try{
+            $target_user_id = $_REQUEST['target_user_id'];
+            $self_user_id = $_REQUEST['self_user_id'];
+            //用户为空
+            if(empty($self_user_id) || empty($target_user_id)){
+                returnJson(0,"用户为空");
+                return;
+            }
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+
+            $start = ($page-1)*$size;
+            $end   = $size;
+
+            $friendModel = M();
+            $sql = 'SELECT u.id uid, u.name,u.head_sub_image,u.school,u.head_image, CASE WHEN r2.id>0 THEN 1 ELSE 0 END AS isAttent
+                    FROM jlxc_user u, (SELECT * FROM jlxc_relationship WHERE friend_id='.$target_user_id.' AND delete_flag=0) r1 LEFT JOIN
+                    (SELECT * FROM jlxc_relationship WHERE user_id='.$self_user_id.' AND delete_flag=0) r2 ON(r1.user_id = r2.friend_id)
+                    WHERE u.id=r1.user_id ORDER BY r1.add_date DESC LIMIT '.$start.','.$end;
+            $friendList = $friendModel->query($sql);
+
+            $result = array();
+            $result['list'] = $friendList;
+            //是否是最后一页
+            if(count($friendList) < $size){
+                $result['is_last'] = '1';
+            }else{
+                $result['is_last'] = '0';
+            }
+
+            //添加过
+            if($friendList){
+                returnJson(1,"获取成功", $result);
+            }else{
+                returnJson(1,"本来就没有", $result);
+            }
+            return;
+        }catch (Exception $e) {
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+
 
     /**
      * @brief 获取好友列表 旧版 全部
