@@ -4704,7 +4704,215 @@ class MobileApiController extends Controller {
             returnJson(0,"数据异常！",$e);
         }
     }
+    /////////////////////////////////////////////‘话题’模块/////////////////////////////////////////////////
+    /**
+     * @brief 获取话题的类别
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicCatagory
+     */
+    public function getTopicCatagory(){
+        try{
+            //类别模型
+            $catagoryModel = M('jlxc_topic_catagory');
+            $catagory = $catagoryModel->field('catagory_id,catagory_name')->where('delete_flag=0')->select();
+            returnJson(1,"查询成功", array('list'=>$catagory));
 
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 修改个人信息中的图片:头像 背景图
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/postNewTopic?
+     * @param user_id 用户id
+     * @param topic_name 话题名称
+     * @param topic_desc 话题描述
+     * @param catagory_id 类别id
+     */
+    public function postNewTopic(){
+        try{
+
+            $user_id = $_REQUEST['user_id'];
+            $topic_name = $_REQUEST['topic_name'];
+            $topic_desc = $_REQUEST['topic_desc'];
+            $catagory_id = $_REQUEST['catagory_id'];
+            if(empty($user_id)){
+                returnJson(0,"创建者不能为空！");
+                return;
+            }
+            if(empty($topic_name)){
+                returnJson(0,"圈子名不能为空");
+                return;
+            }
+            if(strlen($topic_name)>16){
+                returnJson(0,"圈子名长度不能超过16个字");
+                return;
+            }
+            if(empty($topic_desc)){
+                returnJson(0,"圈子介绍不能为空");
+                return;
+            }
+            if(strlen($topic_desc)>16){
+                returnJson(0,"圈子介绍不能超过16个字");
+                return;
+            }
+            if(empty($catagory_id)){
+                returnJson(0,"类别不能为空");
+                return;
+            }
+
+            //用户圈子表
+            $topicModel = M('jlxc_topic_circle');
+            $newTopic = array('user_id'=>$user_id,'topic_name'=>$topic_name,'topic_detail'=>$topic_desc,'topic_category'=>$catagory_id);
+
+            $info = null;
+            $upload = null;
+            //图片
+            if(!empty($_FILES)){
+                $upload = new \Think\Upload();// 实例化上传类
+                $upload->maxSize   =     10*1024*1024 ;// 设置附件上传大小
+                $upload->exts      =     array('jpg', 'gif', 'png', 'jpeg');// 设置附件上传类型
+                $upload->rootPath  =     './Uploads/'; // 设置附件上传根目录
+                $upload->savePath  =     ''; // 设置附件上传（子）目录
+                $upload->saveName  =     '';
+                // 上传文件
+                $info   =   $upload->upload();
+            }
+            //上传成功
+            if($info) {
+                $image = new \Think\Image();
+                foreach($info as $file){
+
+                    $path = $file['savepath'].$file['savename'];
+                    $image->open('./Uploads/'.$path);
+                    //缩略图地址前半部分
+                    $preffix = substr($path, 0, strlen($path)-4);
+                    //后缀
+                    $suffix  = substr($path, strlen($path)-4);
+                    //拼接
+                    $subpath = $preffix.'_sub'.$suffix;
+                    $image->thumb(360, 360)->save('./Uploads/'.$subpath, null, 90);
+
+                    //图片地址
+                    $newTopic['topic_cover_image'] = $path;
+                    //缩略图
+                    $newTopic['topic_cover_sub_image'] = $subpath;
+                }
+            }else{
+                returnJson(0,"图片不能为空!");
+                return;
+            }
+
+            //添加
+            $newTopic['add_date'] = time();
+            $topicModel->trstartTrans();
+            $topic_id = $topicModel->add($newTopic);
+            //添加成功
+            if($topic_id){
+                //关注自己的圈子
+                $myTopicModel = M('jlxc_user_topic');
+                $myTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time());
+                $ret = $myTopicModel->add($myTopic);
+                //关注成功
+                if($ret){
+                    $topicModel->commit();
+                    returnJson(1,"发布成功", $image);
+                    return;
+                }else{
+                    $topicModel->rollback();
+                    returnJson(0,"发布失败!");
+                }
+
+            }else{
+                $topicModel->rollback();
+                returnJson(0,"发布失败!");
+            }
+
+            return;
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 获取我的话题列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getMyTopic
+     * @param user_id 用户id
+     *
+     */
+    public function getMyTopic(){
+        try{
+            $user_id = $_REQUEST['user_id'];
+            if(empty($user_id)){
+                returnJson(0,"用户不能为空");
+                return;
+            }
+            $sql = 'SELECT t.id,t.topic_name,t.topic_cover_sub_image, COUNT(ut.id) member_count FROM jlxc_user_topic ut, jlxc_user_topic ut2, jlxc_topic_circle t
+                    WHERE ut.user_id=\''.$user_id.'\' AND ut.topic_id=t.id AND ut2.topic_id=ut.topic_id AND ut2.delete_flag=0 AND ut.delete_flag=0 AND t.delete_flag=0
+                    GROUP BY ut.id';
+            //类别模型
+            $topicModel = M();
+            $topicList = $topicModel->query($sql);
+            returnJson(1,"查询成功", array('list'=>$topicList));
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 获取话题详情
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicDetail
+     * @param topic_id 圈子id
+     *
+     */
+    public function getTopicDetail(){
+        try{
+            $topic_id = $_REQUEST['topic_id'];
+            if(empty($topic_id)){
+                returnJson(0,"查询的圈子不能为空");
+                return;
+            }
+            //类别模型
+            $topicModel = M();
+            $sql = 'SELECT u.id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_cover_sub_image, t.add_date, c.catagory_name
+                    FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_catagory c
+                    WHERE t.delete_flag=0 AND t.id=0 AND u.id=t.user_id AND t.topic_category=c.catagory_id';
+            $topicDetail = $topicModel->query($sql)[0];
+            if($topicDetail){
+
+                $topic = array('content'=>$topicDetail);
+                //圈子人数
+                $userTopicModel = M('jlxc_user_topic');
+                $attentCount = $userTopicModel->field('count(1) count')->where('delete_flag=0 and topic_id='.$topic_id)->find();
+                $topic['member_count'] = $attentCount['count'];
+                //帖子数量
+                $sql = 'SELECT count(1) count FROM jlxc_news_extra e, jlxc_news_content c
+                        WHERE e.news_id=c.id AND e.topic_id='.$topic_id.' AND e.delete_flag=0 AND c.delete_flag=0';
+                $newsCount = $topicModel->query($sql);
+                $topic['news_count'] = $newsCount[0]['count'];
+                //类别名
+                returnJson(1,"查询成功", $topic);
+
+            }else{
+                returnJson(0,"没找到这个圈子T_T");
+            }
+
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+    /////////////////////////////////////////////TEST DEMO/////////////////////////////////////////////////
     /**
      * @brief 推荐的人列表
      * 接口地址
