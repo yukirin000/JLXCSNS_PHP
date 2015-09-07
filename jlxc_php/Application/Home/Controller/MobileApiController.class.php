@@ -4724,7 +4724,7 @@ class MobileApiController extends Controller {
     }
 
     /**
-     * @brief 修改个人信息中的图片:头像 背景图
+     * @brief 创建一个圈子
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/postNewTopic?
      * @param user_id 用户id
@@ -4766,6 +4766,12 @@ class MobileApiController extends Controller {
 
             //用户圈子表
             $topicModel = M('jlxc_topic_circle');
+            $existTopic = $topicModel->where('topic_name=\''.$topic_name.'\'')->find();
+            //存在 则不能创建
+            if($existTopic){
+                returnJson(0,"对不起，该圈子已经存在");
+                return;
+            }
             $newTopic = array('user_id'=>$user_id,'topic_name'=>$topic_name,'topic_detail'=>$topic_desc,'topic_category'=>$catagory_id);
 
             $info = null;
@@ -4808,7 +4814,7 @@ class MobileApiController extends Controller {
 
             //添加
             $newTopic['add_date'] = time();
-            $topicModel->trstartTrans();
+            $topicModel->startTrans();
             $topic_id = $topicModel->add($newTopic);
             //添加成功
             if($topic_id){
@@ -4819,7 +4825,7 @@ class MobileApiController extends Controller {
                 //关注成功
                 if($ret){
                     $topicModel->commit();
-                    returnJson(1,"发布成功", $image);
+                    returnJson(1,"发布成功");
                     return;
                 }else{
                     $topicModel->rollback();
@@ -4840,13 +4846,245 @@ class MobileApiController extends Controller {
     }
 
     /**
+     * @brief 加入一个圈子
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/joinTopic?
+     * @param user_id 用户id
+     * @param topic_id 话题id
+     */
+    public function joinTopic(){
+        try{
+
+            $user_id = $_REQUEST['user_id'];
+            $topic_id = $_REQUEST['topic_id'];
+            if(empty($user_id)){
+                returnJson(0,"用户不能为空！");
+                return;
+            }
+            if(empty($topic_id)){
+                returnJson(0,"圈子不能为空");
+                return;
+            }
+
+            //用户圈子表
+            $topicModel = M('jlxc_user_topic');
+            $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
+            //存在更新状态
+            if($topic){
+                //更新为关注
+                if($topic['delete_flag'] == 1){
+                    $topic['delete_flag'] = 0;
+                    $ret = $topicModel->save($topic);
+                    if($ret){
+                        returnJson(1,"关注成功~");
+                    }else{
+                        returnJson(0,"关注失败...");
+                    }
+                }else{
+                    returnJson(0,"关注过啦...");
+                }
+            }else{
+                //不存在 增加一条
+                $joinTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time());
+                $ret = $topicModel->add($joinTopic);
+                if($ret){
+                    returnJson(1,"关注成功~");
+                }else{
+                    returnJson(0,"关注失败...");
+                }
+            }
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 退出一个圈子
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/joinTopic?
+     * @param user_id 用户id
+     * @param topic_id 话题id
+     */
+    public function quitTopic(){
+        try{
+
+            $user_id = $_REQUEST['user_id'];
+            $topic_id = $_REQUEST['topic_id'];
+            if(empty($user_id)){
+                returnJson(0,"用户不能为空！");
+                return;
+            }
+            if(empty($topic_id)){
+                returnJson(0,"圈子不能为空");
+                return;
+            }
+
+            //用户圈子表
+            $topicModel = M('jlxc_user_topic');
+            $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
+            //存在更新状态
+            if($topic){
+                //更新为关注
+                if($topic['delete_flag'] == 0){
+                    $topic['delete_flag'] = 1;
+                    $ret = $topicModel->save($topic);
+                    if($ret){
+                        returnJson(1,"取消成功~");
+                    }else{
+                        returnJson(0,"取消失败...");
+                    }
+                }else{
+                    returnJson(0,"取消过啦...");
+                }
+            }else{
+                returnJson(0,"您没有加入过啊...");
+            }
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 话题新闻列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicNewsList
+     * @param page 页码 默认1
+     * @param size 每页数量 默认10
+     * @param user_id 用户id
+     * @param topic_id 话题代码
+     * @param frist_time 第一条状态的时间
+     */
+    public function getTopicNewsList(){
+        try{
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            $user_id = $_REQUEST['user_id'];
+            $topic_id = $_REQUEST['topic_id'];
+            $frist_time = $_REQUEST['frist_time'];
+
+            if(empty($user_id)){
+                returnJson(0,"用户Id不能为空");
+                return;
+            }
+            if(empty($topic_id)){
+                returnJson(0,"话题不能为空");
+                return;
+            }
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+            if(empty($frist_time)){
+                $frist_time = time();
+            }
+
+            $start = ($page-1)*$size;
+            $end   = $size;
+            $sql = 'SELECT user.id uid, user.name, user.school, user.head_image,user.head_sub_image, news.id , news.content_text, news.location, news.comment_quantity,
+                    news.browse_quantity, news.like_quantity, news.add_date FROM jlxc_news_content news,jlxc_user user, jlxc_news_extra extra
+                    WHERE news.add_date<='.$frist_time.' and extra.news_id = news.id and extra.topic_id = '.$topic_id.' and extra.delete_flag=0
+                    and news.uid = user.id and news.delete_flag = 0 ORDER BY news.add_date DESC LIMIT '.$start.','.$end;
+
+            //获取用户详细信息
+            $findNews = M();
+            $newsList = $findNews->query($sql);
+
+            if(isset($newsList)){
+                //SELECT id,type,sub_url,url,size,add_date from jlxc_attachment WHERE entity_id=7 and delete_flag = 0
+                if(count($newsList) > 0){
+
+                    //处理图片
+                    for($i=0; $i<count($newsList); $i++) {
+                        $news = $newsList[$i];
+                        //该状态发的图片
+                        $imageSql = 'SELECT id,type,sub_url,url,size,add_date
+                                      from jlxc_attachment WHERE delete_flag = 0 and entity_id='.$news['id'].' ORDER BY url';
+                        $images = $findNews->query($imageSql);
+                        //返回尺寸
+                        for($j=0; $j<count($images); $j++) {
+                            $image = new \Think\Image();
+                            $path = $images[$j]['url'];
+                            $image->open('./Uploads/'.$path);
+                            $images[$j]['width']  = $image->size()[0];
+                            $images[$j]['height'] = $image->size()[1];
+                        }
+
+                        //获取该状态的评论
+                        $commentSql = 'SELECT c.id, u.name, u.head_image, u.head_sub_image, c.add_date, c.user_id,c.comment_content, c.like_quantity,
+                                       c.like_quantity from jlxc_news_comment c, jlxc_user u WHERE c.user_id=u.id and c.delete_flag = 0
+                                        and c.news_id='.$news['id'].' ORDER BY c.add_date LIMIT 3';
+                        $comments = $findNews->query($commentSql);
+                        $comments = array_replace_null($comments);
+                        //获取该状态点赞的人
+                        //SELECT * FROM jlxc_news_like WHERE news_id=22 AND delete_flag = 0 LIMIT 8
+                        $likeSql = 'SELECT l.user_id,u.head_image, u.head_sub_image FROM jlxc_news_like l,jlxc_user u
+                                    WHERE l.user_id = u.id and l.news_id='.$news['id'].' AND l.delete_flag = 0 order by l.add_date DESC LIMIT 12';
+                        $likes = $findNews->query($likeSql);
+                        //获取该状态是否这个人赞了
+                        $likeModel = M('jlxc_news_like');
+                        $oldLike = $likeModel->where('delete_flag=0 and news_id='.$news['id'].' and user_id='.$user_id)->find();
+                        if($oldLike){
+                            $newsList[$i]['is_like'] = '1';
+                        }else{
+                            $newsList[$i]['is_like'] = '0';
+                        }
+
+                        //赋值
+                        $newsList[$i]['images'] = $images;
+                        $newsList[$i]['comments'] = $comments;
+                        $newsList[$i]['likes'] = $likes;
+                        $newsList[$i]['add_time'] = $newsList[$i]['add_date'];
+                        $newsList[$i]['add_date'] = date('Y-m-d H:i:s', $newsList[$i]['add_date']);
+                    }
+                }
+
+                $result = array();
+                $result['list'] = $newsList;
+
+                //是否是最后一页
+                if(count($newsList) < $size){
+                    $result['is_last'] = '1';
+                }else{
+                    $result['is_last'] = '0';
+                }
+
+                //如果是首页 找出该学校活跃度最高的前五人
+                if($page == 1){
+                    $studentSql = 'SELECT u.id uid, u.head_sub_image FROM jlxc_user u LEFT JOIN jlxc_news_content n ON(n.uid=u.id)
+                                    WHERE u.school_code='.$school_code.' GROUP BY u.id ORDER BY RAND() DESC LIMIT 10';
+                    $students = $findNews->query($studentSql);
+                    $result['info'] = $students;
+                }
+
+                returnJson(1,"查询成功", $result);
+                return;
+            }else{
+                returnJson(0,"查询失败T_T");
+            }
+
+            return;
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常=_=", $e);
+        }
+    }
+
+    /**
      * @brief 获取我的话题列表
      * 接口地址
-     * http://localhost/jlxc_php/index.php/Home/MobileApi/getMyTopic
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getMyTopicList
      * @param user_id 用户id
      *
      */
-    public function getMyTopic(){
+    public function getMyTopicList(){
         try{
             $user_id = $_REQUEST['user_id'];
             if(empty($user_id)){
