@@ -1695,7 +1695,8 @@ class MobileApiController extends Controller {
             $uid = $_REQUEST['uid'];
             $content_text = $_REQUEST['content_text'];
             $location = $_REQUEST['location'];
-
+            //话题ID
+            $topicId = $_REQUEST['topic_id'];
             if(empty($_FILES) && empty($content_text)) {
                 returnJson(0 ,'内容不能为空T_T');
                 return;
@@ -1739,9 +1740,9 @@ class MobileApiController extends Controller {
             $attachmentModel = D('jlxc_attachment');
 
             $newsModel->startTrans();
-            $ret = $newsModel->add($news);
+            $news_id = $newsModel->add($news);
 
-            if($ret){
+            if($news_id){
                 $attachment = array();
                 //返回值
                 $retJson = array();
@@ -1763,7 +1764,7 @@ class MobileApiController extends Controller {
 
                         $single_file = array();
                         $single_file['user_id'] = $uid;
-                        $single_file['entity_id'] = $ret;
+                        $single_file['entity_id'] = $news_id;
                         $single_file['type'] = get_image_type();
                         $single_file['sub_url'] = $subpath;
                         $single_file['url'] = $path;
@@ -1776,10 +1777,32 @@ class MobileApiController extends Controller {
                     }
                     $aret = $attachmentModel->addAll($attachment);
                     if($aret){
+                        if(!empty($topicId)){
+                            $extraModel = M('jlxc_news_extra');
+                            $extra = array('news_id' => $news_id, 'topic_id' => $topicId, 'add_date' => time());
+                            $extraId = $extraModel->add($extra);
+                            if(empty($extraId)){
+                                $newsModel->rollback();
+                                returnJson(0,'发布失败!');
+                                return;
+                            }
+                        }
+
                         $newsModel->commit();
                         returnJson(1,'发布成功', $retJson);
                         return;
                     }else{
+                        $newsModel->rollback();
+                        returnJson(0,'发布失败!');
+                        return;
+                    }
+                }
+
+                if(!empty($topicId)){
+                    $extraModel = M('jlxc_news_extra');
+                    $extra = array('news_id' => $news_id, 'topic_id' => $topicId, 'add_date' => time());
+                    $extraId = $extraModel->add($extra);
+                    if(empty($extraId)){
                         $newsModel->rollback();
                         returnJson(0,'发布失败!');
                         return;
@@ -4865,7 +4888,6 @@ class MobileApiController extends Controller {
                 returnJson(0,"圈子不能为空");
                 return;
             }
-
             //用户圈子表
             $topicModel = M('jlxc_user_topic');
             $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
@@ -4874,6 +4896,7 @@ class MobileApiController extends Controller {
                 //更新为关注
                 if($topic['delete_flag'] == 1){
                     $topic['delete_flag'] = 0;
+                    $topic['update_date'] = time();
                     $ret = $topicModel->save($topic);
                     if($ret){
                         returnJson(1,"关注成功~");
@@ -4926,8 +4949,16 @@ class MobileApiController extends Controller {
             $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
             //存在更新状态
             if($topic){
-                //更新为关注
+                //更新为取消
                 if($topic['delete_flag'] == 0){
+                    //如果自己是圈主不能取消
+                    $circleModel = M('jlxc_topic_circle');
+                    $circle = $circleModel->where("user_id = '%d' and id = '%d'", $user_id, $topic_id)->find();
+                    if($circle){
+                        returnJson(0,"群主不能退出自己的圈子...");
+                        return;
+                    }
+
                     $topic['delete_flag'] = 1;
                     $ret = $topicModel->save($topic);
                     if($ret){
@@ -5055,14 +5086,6 @@ class MobileApiController extends Controller {
                     $result['is_last'] = '0';
                 }
 
-                //如果是首页 找出该学校活跃度最高的前五人
-                if($page == 1){
-                    $studentSql = 'SELECT u.id uid, u.head_sub_image FROM jlxc_user u LEFT JOIN jlxc_news_content n ON(n.uid=u.id)
-                                    WHERE u.school_code='.$school_code.' GROUP BY u.id ORDER BY RAND() DESC LIMIT 10';
-                    $students = $findNews->query($studentSql);
-                    $result['info'] = $students;
-                }
-
                 returnJson(1,"查询成功", $result);
                 return;
             }else{
@@ -5086,17 +5109,39 @@ class MobileApiController extends Controller {
      */
     public function getMyTopicList(){
         try{
+//            $page = $_REQUEST['page'];
+//            $size = $_REQUEST['size'];
             $user_id = $_REQUEST['user_id'];
             if(empty($user_id)){
                 returnJson(0,"用户不能为空");
                 return;
             }
-            $sql = 'SELECT t.id,t.topic_name,t.topic_cover_sub_image, COUNT(ut.id) member_count FROM jlxc_user_topic ut, jlxc_user_topic ut2, jlxc_topic_circle t
+//            if(empty($page)){
+//                $page = 1;
+//            }
+//            if(empty($size)){
+//                $size = 10;
+//            }
+            $sql = 'SELECT t.id topic_id,t.topic_name,t.topic_cover_sub_image, ut.last_refresh_date, COUNT(ut.id) member_count FROM jlxc_user_topic ut, jlxc_user_topic ut2, jlxc_topic_circle t
                     WHERE ut.user_id=\''.$user_id.'\' AND ut.topic_id=t.id AND ut2.topic_id=ut.topic_id AND ut2.delete_flag=0 AND ut.delete_flag=0 AND t.delete_flag=0
                     GROUP BY ut.id';
             //类别模型
             $topicModel = M();
             $topicList = $topicModel->query($sql);
+            for($i=0; $i<count($topicList); $i++) {
+                $topic = $topicList[$i];
+                $last_date = $topic['last_refresh_date'];
+                if(empty($last_date)){
+                    $last_date = time();
+                }
+                //新消息数量
+                $sql = 'SELECT count(1) count FROM jlxc_news_content n, jlxc_news_extra e, jlxc_user u
+                            WHERE n.id=e.news_id AND n.add_date>'.$last_date.' and e.topic_id='.$topic['topic_id'].'
+                            and n.uid = u.id and n.uid <> '.$user_id.' and n.delete_flag = 0';
+                $unreadNews = $topicModel->query($sql);
+                $topicList[$i]['unread_news_count'] = $unreadNews[0]['count'];
+            }
+
             returnJson(1,"查询成功", array('list'=>$topicList));
 
         }catch (Exception $e){
@@ -5110,33 +5155,52 @@ class MobileApiController extends Controller {
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicDetail
      * @param topic_id 圈子id
+     * @param user_id 用户id
      *
      */
     public function getTopicDetail(){
         try{
             $topic_id = $_REQUEST['topic_id'];
+            $user_id = $_REQUEST['user_id'];
             if(empty($topic_id)){
                 returnJson(0,"查询的圈子不能为空");
                 return;
             }
+            if(empty($user_id)){
+                returnJson(0,"查询用户不能为空");
+                return;
+            }
             //类别模型
             $topicModel = M();
-            $sql = 'SELECT u.id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_cover_sub_image, t.add_date, c.catagory_name
+            $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.catagory_name
                     FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_catagory c
-                    WHERE t.delete_flag=0 AND t.id=0 AND u.id=t.user_id AND t.topic_category=c.catagory_id';
+                    WHERE t.delete_flag=0 AND t.id='.$topic_id.' AND u.id=t.user_id AND t.topic_category=c.catagory_id';
             $topicDetail = $topicModel->query($sql)[0];
             if($topicDetail){
-
+                //内容
                 $topic = array('content'=>$topicDetail);
                 //圈子人数
                 $userTopicModel = M('jlxc_user_topic');
                 $attentCount = $userTopicModel->field('count(1) count')->where('delete_flag=0 and topic_id='.$topic_id)->find();
                 $topic['member_count'] = $attentCount['count'];
+                //圈子找4个人
+                $sql = 'SELECT u.id user_id, u.name, u.head_sub_image FROM jlxc_user_topic t, jlxc_user u
+                        WHERE t.delete_flag=0 AND t.topic_id=\''.$topic_id.'\' AND u.id=t.user_id AND t.delete_flag=0
+                        ORDER BY t.add_date DESC LIMIT 4';
+                $members = $userTopicModel->query($sql);
+                $topic['members'] = $members;
                 //帖子数量
                 $sql = 'SELECT count(1) count FROM jlxc_news_extra e, jlxc_news_content c
                         WHERE e.news_id=c.id AND e.topic_id='.$topic_id.' AND e.delete_flag=0 AND c.delete_flag=0';
                 $newsCount = $topicModel->query($sql);
                 $topic['news_count'] = $newsCount[0]['count'];
+                //自己的加入状态
+                $joinState = $userTopicModel->where("delete_flag=0 and topic_id='%d' and user_id='%d'", $topic_id, $user_id)->find();
+                if($joinState){
+                    $topic['join_state'] = '1';
+                }else{
+                    $topic['join_state'] = '0';
+                }
                 //类别名
                 returnJson(1,"查询成功", $topic);
 
