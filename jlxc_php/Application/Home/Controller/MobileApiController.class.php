@@ -5018,7 +5018,7 @@ class MobileApiController extends Controller {
 
             $start = ($page-1)*$size;
             $end   = $size;
-            $sql = 'SELECT user.id uid, user.name, user.school, user.head_image,user.head_sub_image, news.id , news.content_text, news.location, news.comment_quantity,
+            $sql = 'SELECT user.id uid, user.name, user.school, user.school_code, user.head_image,user.head_sub_image, news.id , news.content_text, news.location, news.comment_quantity,
                     news.browse_quantity, news.like_quantity, news.add_date FROM jlxc_news_content news,jlxc_user user, jlxc_news_extra extra
                     WHERE news.add_date<='.$frist_time.' and extra.news_id = news.id and extra.topic_id = '.$topic_id.' and extra.delete_flag=0
                     and news.uid = user.id and news.delete_flag = 0 ORDER BY news.add_date DESC LIMIT '.$start.','.$end;
@@ -5078,6 +5078,28 @@ class MobileApiController extends Controller {
 
                 $result = array();
                 $result['list'] = $newsList;
+
+                //关注情况 和 圈子描述
+                $userTopicModel = M('jlxc_user_topic');
+                $userTopic = $userTopicModel->where("topic_id='%d' and user_id='%d'", $topic_id, $user_id)->find();
+                if(!empty($userTopic)){
+                    //是否关注
+                    if($userTopic['delete_flag'] == 0) {
+                        $result['is_attent'] = '1';
+                        //关注的话 更新上次刷新时间
+                        $userTopic['last_refresh_date'] = time();
+                        $userTopicModel->save($userTopic);
+                    }else{
+                        $result['is_attent'] = '0';
+                    }
+                }else{
+                    $result['is_attent'] = '0';
+                }
+
+                //圈子描述
+                $topicCircleModel = M('jlxc_topic_circle');
+                $topicCircle = $topicCircleModel->where("id='%d'", $topic_id)->find();
+                $result['topic_detail'] = $topicCircle['topic_detail'];
 
                 //是否是最后一页
                 if(count($newsList) < $size){
