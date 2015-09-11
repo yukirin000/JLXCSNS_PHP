@@ -4731,14 +4731,14 @@ class MobileApiController extends Controller {
     /**
      * @brief 获取话题的类别
      * 接口地址
-     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicCatagory
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicCategory
      */
-    public function getTopicCatagory(){
+    public function getTopicCategory(){
         try{
             //类别模型
-            $catagoryModel = M('jlxc_topic_catagory');
-            $catagory = $catagoryModel->field('catagory_id,catagory_name')->where('delete_flag=0')->select();
-            returnJson(1,"查询成功", array('list'=>$catagory));
+            $categoryModel = M('jlxc_topic_category');
+            $category = $categoryModel->field('category_id,category_name')->where('delete_flag=0')->select();
+            returnJson(1,"查询成功", array('list'=>$category));
 
         }catch (Exception $e){
 
@@ -4753,7 +4753,7 @@ class MobileApiController extends Controller {
      * @param user_id 用户id
      * @param topic_name 话题名称
      * @param topic_desc 话题描述
-     * @param catagory_id 类别id
+     * @param category_id 类别id
      */
     public function postNewTopic(){
         try{
@@ -4761,7 +4761,7 @@ class MobileApiController extends Controller {
             $user_id = $_REQUEST['user_id'];
             $topic_name = $_REQUEST['topic_name'];
             $topic_desc = $_REQUEST['topic_desc'];
-            $catagory_id = $_REQUEST['catagory_id'];
+            $category_id = $_REQUEST['category_id'];
             if(empty($user_id)){
                 returnJson(0,"创建者不能为空！");
                 return;
@@ -4778,11 +4778,11 @@ class MobileApiController extends Controller {
                 returnJson(0,"圈子介绍不能为空");
                 return;
             }
-            if(strlen($topic_desc)>16){
-                returnJson(0,"圈子介绍不能超过16个字");
+            if(strlen($topic_desc)>200){
+                returnJson(0,"圈子介绍不能超过200个字");
                 return;
             }
-            if(empty($catagory_id)){
+            if(empty($category_id)){
                 returnJson(0,"类别不能为空");
                 return;
             }
@@ -4795,7 +4795,7 @@ class MobileApiController extends Controller {
                 returnJson(0,"对不起，该圈子已经存在");
                 return;
             }
-            $newTopic = array('user_id'=>$user_id,'topic_name'=>$topic_name,'topic_detail'=>$topic_desc,'topic_category'=>$catagory_id);
+            $newTopic = array('user_id'=>$user_id,'topic_name'=>$topic_name,'topic_detail'=>$topic_desc,'topic_category'=>$category_id);
 
             $info = null;
             $upload = null;
@@ -5173,6 +5173,143 @@ class MobileApiController extends Controller {
     }
 
     /**
+     * @brief 获取我的话题列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicMemberList
+     * @param topic_ic 圈子id
+     *
+     */
+    public function getTopicMemberList(){
+        try{
+            $topic_id = $_REQUEST['topic_id'];
+            if(empty($topic_id)){
+                returnJson(0,"圈子不能为空");
+                return;
+            }
+            $sql = "SELECT u.id user_id, u.name, u.sex, u.head_sub_image  FROM jlxc_user u, jlxc_user_topic t WHERE u.id = t.user_id AND
+                    t.topic_id='".$topic_id."' AND u.delete_flag=0 AND t.delete_flag=0 ORDER BY t.add_date DESC";
+            //类别模型
+            $topicModel = M();
+            $topicList = $topicModel->query($sql);
+
+            returnJson(1,"查询成功", array('list'=>$topicList));
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 获取圈子首页列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicHomeList
+     * @param user_id 用户id
+     * @param category_id 类别id
+     */
+    public function getTopicHomeList(){
+        try{
+            $user_id = $_REQUEST['user_id'];
+            $category_id = $_REQUEST['category_id'];
+            if(empty($user_id)){
+                returnJson(0,"查询用户不能为空");
+                return;
+            }
+
+            //类别模型
+            $topicModel = M();
+            $sql = 'SELECT id topic_id, topic_cover_image, topic_name, topic_detail FROM jlxc_topic_circle
+                    WHERE id NOT IN (SELECT topic_id FROM jlxc_user_topic WHERE delete_flag=0 AND user_id=\''.$user_id.'\') ORDER BY RAND() LIMIT 30';
+            //如果有类别
+            if(!empty($category_id)){
+                $sql = 'SELECT id topic_id, topic_cover_image, topic_name, topic_detail FROM jlxc_topic_circle
+                        WHERE topic_category=\''.$category_id.'\' AND id NOT IN (SELECT topic_id FROM jlxc_user_topic WHERE delete_flag=0 AND user_id=\''.$user_id.'\') ORDER BY RAND() LIMIT 30';
+            }
+
+            $topicList = $topicModel->query($sql);
+            for($i=0; $i<count($topicList); $i++) {
+                //话题
+                $topic = $topicList[$i];
+                //圈子人数
+                $userTopicModel = M('jlxc_user_topic');
+                $attentCount = $userTopicModel->field('count(1) count')->where('delete_flag=0 and topic_id='.$topic['topic_id'])->find();
+                $topicList[$i]['member_count'] = $attentCount['count'];
+                //帖子数量
+                $sql = 'SELECT count(1) count FROM jlxc_news_extra e, jlxc_news_content c
+                        WHERE e.news_id=c.id AND e.topic_id='.$topic['topic_id'].' AND e.delete_flag=0 AND c.delete_flag=0';
+                $newsCount = $topicModel->query($sql);
+                $topicList[$i]['news_count'] = $newsCount[0]['count'];
+            }
+
+            //类别名
+            returnJson(1,"查询成功", array('list'=>$topicList));
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
+     * @brief 通过类别获取圈子列表
+     * 接口地址
+     * http://localhost/jlxc_php/index.php/Home/MobileApi/getCategoryTopicList
+     * @param user_id 用户id
+     * @param category_id 类别id
+     * @param page 页码
+     * @param size 尺寸
+     */
+    public function getCategoryTopicList(){
+        try{
+
+            $page = $_REQUEST['page'];
+            $size = $_REQUEST['size'];
+            $category_id = $_REQUEST['category_id'];
+
+            if(empty($page)){
+                $page = 1;
+            }
+            if(empty($size)){
+                $size = 10;
+            }
+            $start = ($page-1)*$size;
+            $end   = $size;
+
+            //类别模型
+            $topicModel = M();
+            //查询出圈子和发帖数量
+            $sql = 'SELECT topic.id topic_id, topic.topic_cover_image, topic.topic_name, topic.topic_detail,
+                    CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
+                    (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
+                    ON (topic.id = n.topic_id) GROUP BY topic.id LIMIT '.$start.','.$end;
+            //如果有类别
+            if(!empty($category_id)){
+                $sql = 'SELECT topic.id topic_id, topic.topic_cover_image, topic.topic_name, topic.topic_detail,
+                    CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
+                    (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
+                    ON (topic.id = n.topic_id) WHERE topic_category=\''.$category_id.'\' GROUP BY topic.id LIMIT '.$start.','.$end;
+            }
+
+            $topicList = $topicModel->query($sql);
+            for($i=0; $i<count($topicList); $i++) {
+                //话题
+                $topic = $topicList[$i];
+                //圈子人数
+                $userTopicModel = M('jlxc_user_topic');
+                $attentCount = $userTopicModel->field('count(1) count')->where('delete_flag=0 and topic_id='.$topic['topic_id'])->find();
+                $topicList[$i]['member_count'] = $attentCount['count'];
+            }
+
+            //类别名
+            returnJson(1,"查询成功", array('list'=>$topicList));
+
+        }catch (Exception $e){
+
+            returnJson(0,"数据异常！",$e);
+        }
+    }
+
+    /**
      * @brief 获取话题详情
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/getTopicDetail
@@ -5194,9 +5331,9 @@ class MobileApiController extends Controller {
             }
             //类别模型
             $topicModel = M();
-            $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.catagory_name
-                    FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_catagory c
-                    WHERE t.delete_flag=0 AND t.id='.$topic_id.' AND u.id=t.user_id AND t.topic_category=c.catagory_id';
+            $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.category_name
+                    FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_category c
+                    WHERE t.delete_flag=0 AND t.id='.$topic_id.' AND u.id=t.user_id AND t.topic_category=c.category_id';
             $topicDetail = $topicModel->query($sql)[0];
             if($topicDetail){
                 //内容
