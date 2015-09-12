@@ -2148,12 +2148,18 @@ class MobileApiController extends Controller {
 
             $start = ($page-1)*$size;
             $end   = $size;
-            $sql = 'SELECT user.id uid, user.name, user.school, user.head_image,user.head_sub_image, news.id ,
+//            $sql = 'SELECT user.id uid, user.name, user.school, user.head_image,user.head_sub_image, news.id ,
+//                    news.content_text, news.location, news.comment_quantity,
+//                    news.browse_quantity, news.like_quantity, news.add_date
+//                    FROM jlxc_news_content news,jlxc_user user WHERE news.add_date<='.$frist_time.' and news.uid = user.id and news.delete_flag = 0
+//                    and user.id in ('.$inStr.') ORDER BY news.add_date DESC LIMIT '.$start.','.$end;
+            $sql = 'SELECT user.id uid, user.name, user.school, user.school_code, user.head_image,user.head_sub_image, news.id ,
                     news.content_text, news.location, news.comment_quantity,
-                    news.browse_quantity, news.like_quantity, news.add_date
-                    FROM jlxc_news_content news,jlxc_user user WHERE news.add_date<='.$frist_time.' and news.uid = user.id and news.delete_flag = 0
+                    news.browse_quantity, news.like_quantity, news.add_date, CASE WHEN topic.id > 1 THEN topic.id ELSE 0 END topic_id, topic.topic_name
+                    FROM jlxc_news_content news LEFT JOIN jlxc_news_extra extra ON (news.id = extra.news_id)
+                    LEFT JOIN jlxc_topic_circle topic ON (extra.topic_id = topic.id), jlxc_user user
+                    WHERE news.add_date<='.$frist_time.' and news.uid = user.id and news.delete_flag = 0
                     and user.id in ('.$inStr.') ORDER BY news.add_date DESC LIMIT '.$start.','.$end;
-
             //获取用户详细信息
             $findNews = M();
             $newsList = $findNews->query($sql);
@@ -4770,7 +4776,7 @@ class MobileApiController extends Controller {
                 returnJson(0,"圈子名不能为空");
                 return;
             }
-            if(strlen($topic_name)>16){
+            if(mb_strlen($topic_name ,'utf-8')>16){
                 returnJson(0,"圈子名长度不能超过16个字");
                 return;
             }
@@ -4778,7 +4784,7 @@ class MobileApiController extends Controller {
                 returnJson(0,"圈子介绍不能为空");
                 return;
             }
-            if(strlen($topic_desc)>200){
+            if(mb_strlen($topic_desc,'utf-8')>200){
                 returnJson(0,"圈子介绍不能超过200个字");
                 return;
             }
@@ -5278,13 +5284,13 @@ class MobileApiController extends Controller {
             //类别模型
             $topicModel = M();
             //查询出圈子和发帖数量
-            $sql = 'SELECT topic.id topic_id, topic.topic_cover_image, topic.topic_name, topic.topic_detail,
+            $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
                     CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
                     (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
                     ON (topic.id = n.topic_id) GROUP BY topic.id LIMIT '.$start.','.$end;
             //如果有类别
             if(!empty($category_id)){
-                $sql = 'SELECT topic.id topic_id, topic.topic_cover_image, topic.topic_name, topic.topic_detail,
+                $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
                     CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
                     (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
                     ON (topic.id = n.topic_id) WHERE topic_category=\''.$category_id.'\' GROUP BY topic.id LIMIT '.$start.','.$end;
@@ -5300,8 +5306,24 @@ class MobileApiController extends Controller {
                 $topicList[$i]['member_count'] = $attentCount['count'];
             }
 
+            $result = array();
+            $result['list'] = $topicList;
+            //是否是最后一页
+            if(count($topicList) < $size){
+                $result['is_last'] = '1';
+            }else{
+                $result['is_last'] = '0';
+            }
+            //类别存在 查出详情
+            if(!empty($category_id)){
+                //类别模型
+                $categoryModel = M('jlxc_topic_category');
+                $category = $categoryModel->field('category_name, category_desc, category_cover')->where('delete_flag=0 and category_id=\''.$category_id.'\'')->select();
+                $result['category'] = $category[0];
+            }
+
             //类别名
-            returnJson(1,"查询成功", array('list'=>$topicList));
+            returnJson(1,"查询成功", $result);
 
         }catch (Exception $e){
 
