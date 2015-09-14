@@ -2287,7 +2287,7 @@ class MobileApiController extends Controller {
             $result = array();
             $homeModel = M('jlxc_school');
             //学校名字地区
-            $school = $homeModel->field('city_name, district_name')->where('code='.$school_code)->find();
+            $school = $homeModel->field('name, city_name, district_name')->where('code='.$school_code)->find();
             //如果学校为空
             if(empty($school)) {
                 returnJson(0,"没这个学校。");
@@ -4743,7 +4743,7 @@ class MobileApiController extends Controller {
         try{
             //类别模型
             $categoryModel = M('jlxc_topic_category');
-            $category = $categoryModel->field('category_id,category_name')->where('delete_flag=0')->select();
+            $category = $categoryModel->field('category_cover, category_id, category_name, category_desc')->where('delete_flag=0')->select();
             returnJson(1,"查询成功", array('list'=>$category));
 
         }catch (Exception $e){
@@ -5356,8 +5356,9 @@ class MobileApiController extends Controller {
             $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.category_name
                     FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_category c
                     WHERE t.delete_flag=0 AND t.id='.$topic_id.' AND u.id=t.user_id AND t.topic_category=c.category_id';
-            $topicDetail = $topicModel->query($sql)[0];
+            $topicDetail = $topicModel->query($sql);
             if($topicDetail){
+                $topicDetail = $topicDetail[0];
                 //内容
                 $topic = array('content'=>$topicDetail);
                 //圈子人数
