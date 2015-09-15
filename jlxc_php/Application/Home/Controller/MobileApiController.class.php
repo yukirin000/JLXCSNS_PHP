@@ -2536,12 +2536,21 @@ class MobileApiController extends Controller {
 
             $news_id = $_REQUEST['news_id'];
             $user_id = $_REQUEST['user_id'];
+            if(empty($news_id)){
+                returnJson(0,"查询状态不能为空!");
+                return;
+            }
+            if(empty($user_id)){
+                returnJson(0,"用户不能为空!");
+                return;
+            }
             $newsModel = M('jlxc_news_content');
             $news = $newsModel->where('id='.$news_id.' and delete_flag = 0')->find();
             if(!$news){
                 returnJson(0,"该状态不存在TAT!");
                 return;
             }
+
 
             //最近浏览次数处理
             //最近访问
@@ -2591,8 +2600,11 @@ class MobileApiController extends Controller {
             //从新查出关联信息
             $sql = 'SELECT user.id uid, user.name, user.school, user.head_image,user.head_sub_image, news.id ,
                     news.content_text, news.location, news.comment_quantity,
-                    news.browse_quantity, news.like_quantity, news.add_date
-                    FROM jlxc_news_content news,jlxc_user user WHERE news.id='.$news_id.' and news.uid = user.id and news.delete_flag = 0';
+                    news.browse_quantity, news.like_quantity, news.add_date, CASE WHEN topic.id > 1 THEN topic.id ELSE 0 END topic_id, topic.topic_name
+                    FROM jlxc_news_content news LEFT JOIN jlxc_news_extra extra ON (news.id = extra.news_id)
+                    LEFT JOIN jlxc_topic_circle topic ON (extra.topic_id = topic.id), jlxc_user user
+                    WHERE news.id='.$news_id.' and news.uid = user.id and news.delete_flag = 0';
+
             $news = $newsModel->query($sql)[0];
 
             $findNews = M();
@@ -4903,6 +4915,7 @@ class MobileApiController extends Controller {
                 if($topic['delete_flag'] == 1){
                     $topic['delete_flag'] = 0;
                     $topic['update_date'] = time();
+                    $topic['last_refresh_time'] = time();
                     $ret = $topicModel->save($topic);
                     if($ret){
                         returnJson(1,"关注成功~");
@@ -4914,7 +4927,7 @@ class MobileApiController extends Controller {
                 }
             }else{
                 //不存在 增加一条
-                $joinTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time());
+                $joinTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time(), 'last_refresh_time'=>time());
                 $ret = $topicModel->add($joinTopic);
                 if($ret){
                     returnJson(1,"关注成功~");
