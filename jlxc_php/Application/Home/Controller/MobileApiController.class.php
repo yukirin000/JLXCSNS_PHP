@@ -4908,14 +4908,14 @@ class MobileApiController extends Controller {
             }
             //用户圈子表
             $topicModel = M('jlxc_user_topic');
-            $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
+            $topic = $topicModel->where('user_id='.$user_id.' and topic_id='.$topic_id)->find();
             //存在更新状态
             if($topic){
                 //更新为关注
                 if($topic['delete_flag'] == 1){
                     $topic['delete_flag'] = 0;
                     $topic['update_date'] = time();
-                    $topic['last_refresh_time'] = time();
+                    $topic['last_refresh_date'] = time();
                     $ret = $topicModel->save($topic);
                     if($ret){
                         returnJson(1,"关注成功~");
@@ -4927,7 +4927,7 @@ class MobileApiController extends Controller {
                 }
             }else{
                 //不存在 增加一条
-                $joinTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time(), 'last_refresh_time'=>time());
+                $joinTopic = array('user_id'=>$user_id, 'topic_id'=>$topic_id, 'add_date'=>time(), 'last_refresh_date'=>time());
                 $ret = $topicModel->add($joinTopic);
                 if($ret){
                     returnJson(1,"关注成功~");
@@ -4965,7 +4965,7 @@ class MobileApiController extends Controller {
 
             //用户圈子表
             $topicModel = M('jlxc_user_topic');
-            $topic = $topicModel->where('user_id='.$user_id, 'topic_id='.$topic_id)->find();
+            $topic = $topicModel->where('user_id='.$user_id.' and topic_id='.$topic_id)->find();
             //存在更新状态
             if($topic){
                 //更新为取消
@@ -5300,13 +5300,13 @@ class MobileApiController extends Controller {
             $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
                     CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
                     (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
-                    ON (topic.id = n.topic_id) GROUP BY topic.id LIMIT '.$start.','.$end;
+                    ON (topic.id = n.topic_id) GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
             //如果有类别
             if(!empty($category_id)){
                 $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
                     CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
                     (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
-                    ON (topic.id = n.topic_id) WHERE topic_category=\''.$category_id.'\' GROUP BY topic.id LIMIT '.$start.','.$end;
+                    ON (topic.id = n.topic_id) WHERE topic_category=\''.$category_id.'\' GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
             }
 
             $topicList = $topicModel->query($sql);
