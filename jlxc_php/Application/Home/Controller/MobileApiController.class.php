@@ -689,11 +689,13 @@ class MobileApiController extends Controller {
                 $list['list'] = $images;
             }
 
-            $imageCount = $findImagesModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
-            if($imageCount){
-                $list['image_count'] = $imageCount['count'];
+            //动态数量
+            $newsCountModel = M('jlxc_news_content');
+            $newsCount = $newsCountModel->field('count(1) count')->where('delete_flag=0 AND uid='.$uid)->find();
+            if($newsCount){
+                $list['news_count'] = $newsCount['count'];
             }else{
-                $list['image_count'] = '0';
+                $list['news_count'] = '0';
             }
 
             if($images){
@@ -1219,12 +1221,13 @@ class MobileApiController extends Controller {
                 }else{
                     $user['friend_count'] = '0';
                 }
-                //图片数量
-                $imageCount = $findImagesModel->field('count(1) count')->where('delete_flag=0 AND user_id='.$uid)->find();
-                if($imageCount){
-                    $user['image_count'] = $imageCount['count'];
+                //动态数量
+                $newsCountModel = M('jlxc_news_content');
+                $newsCount = $newsCountModel->field('count(1) count')->where('delete_flag=0 AND uid='.$uid)->find();
+                if($newsCount){
+                    $user['news_count'] = $newsCount['count'];
                 }else{
-                    $user['image_count'] = '0';
+                    $user['news_count'] = '0';
                 }
                 //粉丝数量
                 $fansCount = $relationModel->field('count(1) count')->where('delete_flag=0 AND friend_id='.$uid)->find();
@@ -3188,7 +3191,7 @@ class MobileApiController extends Controller {
 
 /////////////////////////////////////////////好友部分////////////////////////////////////////////////////////////
     /**
-     * @brief 添加好友
+     * @brief 关注好友
      * 接口地址
      * http://localhost/jlxc_php/index.php/Home/MobileApi/addFriend
      * @param user_id 用户id
@@ -3203,7 +3206,7 @@ class MobileApiController extends Controller {
             $addFriend['add_date'] = time();
 
             if($addFriend['user_id'] == $addFriend['friend_id']) {
-                returnJson(0,"不能添加自己");
+                returnJson(0,"不能关注自己");
                 return;
             }
 
@@ -3216,7 +3219,7 @@ class MobileApiController extends Controller {
             //添加过
             if($isAdd){
                 if($isAdd['delete_flag'] == 0){
-                    returnJson(1,"添加过了=_=");
+                    returnJson(1,"关注过了=_=");
                     return;
                 }else{
                     $isAdd['delete_flag'] = 0;
@@ -3235,9 +3238,9 @@ class MobileApiController extends Controller {
                         //推送通知
                         pushMessage($addFriend['friend_id'],$content,1, $friend['name'].'添加了你~');
 
-                        returnJson(1,"添加成功！");
+                        returnJson(1,"关注成功！");
                     }else{
-                        returnJson(0,"添加失败=.=");
+                        returnJson(0,"关注失败=.=");
                     }
                 }
             }else{
@@ -3255,13 +3258,11 @@ class MobileApiController extends Controller {
                     //推送通知
                     pushMessage($addFriend['friend_id'],$content,1, $friend['name'].'添加了你~');
 
-                    returnJson(1,"添加成功！");
+                    returnJson(1,"关注成功！");
                 }else{
-                    returnJson(0,"添加失败=.=");
+                    returnJson(0,"关注失败=.=");
                 }
             }
-
-
 
             return;
         }catch (Exception $e) {
@@ -3308,7 +3309,7 @@ class MobileApiController extends Controller {
                 }
 
             }else{
-                returnJson(0,"没有该好友=.=");
+                returnJson(0,"没有关注过=.=");
             }
 
             return;
