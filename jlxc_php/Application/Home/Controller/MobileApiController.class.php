@@ -681,7 +681,7 @@ class MobileApiController extends Controller {
             $uid = $_REQUEST['uid'];
             //附件列表
             $findImagesModel = M('jlxc_attachment');
-            $images = $findImagesModel->field('sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
+            $images = $findImagesModel->field('url, sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
             $list = array();
             if(empty($images)){
                 $list['list'] = array();
@@ -1166,7 +1166,7 @@ class MobileApiController extends Controller {
             if($user){
                 //附件列表
                 $findImagesModel = M('jlxc_attachment');
-                $images = $findImagesModel->field('sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
+                $images = $findImagesModel->field('url, sub_url')->where(array('delete_flag=0 and type=1 and user_id='.$uid))->limit('10')->order('add_date desc')->select();
                 if(isset($images)){
                     $user['image_list'] = $images;
                 }else{
@@ -4866,8 +4866,9 @@ class MobileApiController extends Controller {
                 $ret = $myTopicModel->add($myTopic);
                 //关注成功
                 if($ret){
+                    $newTopic = $topicModel->find($topic_id);
                     $topicModel->commit();
-                    returnJson(1,"发布成功");
+                    returnJson(1,"发布成功", $newTopic);
                     return;
                 }else{
                     $topicModel->rollback();
@@ -5239,11 +5240,11 @@ class MobileApiController extends Controller {
             //类别模型
             $topicModel = M();
             $sql = 'SELECT id topic_id, topic_cover_image, topic_name, topic_detail FROM jlxc_topic_circle
-                    WHERE id NOT IN (SELECT topic_id FROM jlxc_user_topic WHERE delete_flag=0 AND user_id=\''.$user_id.'\') ORDER BY RAND() LIMIT 30';
+                    WHERE delete_flag=0 ORDER BY RAND() LIMIT 30';
             //如果有类别
             if(!empty($category_id)){
                 $sql = 'SELECT id topic_id, topic_cover_image, topic_name, topic_detail FROM jlxc_topic_circle
-                        WHERE topic_category=\''.$category_id.'\' AND id NOT IN (SELECT topic_id FROM jlxc_user_topic WHERE delete_flag=0 AND user_id=\''.$user_id.'\') ORDER BY RAND() LIMIT 30';
+                        WHERE topic_category=\''.$category_id.'\' AND delete_flag=0 ORDER BY RAND() LIMIT 30';
             }
 
             $topicList = $topicModel->query($sql);
@@ -5299,15 +5300,15 @@ class MobileApiController extends Controller {
             $topicModel = M();
             //查询出圈子和发帖数量
             $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
-                    CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
-                    (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
-                    ON (topic.id = n.topic_id) GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
+                    CASE WHEN n.news_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
+                    (SELECT extra.topic_id, news.id news_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
+                    ON (topic.id = n.topic_id) WHERE topic.delete_flag=0 GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
             //如果有类别
             if(!empty($category_id)){
                 $sql = 'SELECT topic.id topic_id, topic.topic_cover_sub_image, topic.topic_name, topic.topic_detail,
-                    CASE WHEN n.topic_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
-                    (SELECT extra.topic_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
-                    ON (topic.id = n.topic_id) WHERE topic_category=\''.$category_id.'\' GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
+                    CASE WHEN n.news_id > 0 THEN 1 ELSE 0 END AS has_news, COUNT(topic.id) news_count FROM jlxc_topic_circle topic LEFT JOIN
+                    (SELECT extra.topic_id, news.id news_id FROM jlxc_news_extra extra LEFT JOIN jlxc_news_content news ON (extra.news_id=news.id AND news.delete_flag=0)) n
+                    ON (topic.id = n.topic_id) WHERE topic.delete_flag=0 AND topic.topic_category=\''.$category_id.'\' GROUP BY topic.id ORDER BY news_count DESC LIMIT '.$start.','.$end;
             }
 
             $topicList = $topicModel->query($sql);
@@ -5367,7 +5368,7 @@ class MobileApiController extends Controller {
             }
             //类别模型
             $topicModel = M();
-            $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.category_name
+            $sql = 'SELECT u.id user_id, u.name,u.head_sub_image, t.id, t.topic_name, t.topic_detail, t.topic_cover_image, t.add_date, c.category_id ,c.category_name
                     FROM jlxc_user u, jlxc_topic_circle t, jlxc_topic_category c
                     WHERE t.delete_flag=0 AND t.id='.$topic_id.' AND u.id=t.user_id AND t.topic_category=c.category_id';
             $topicDetail = $topicModel->query($sql);
